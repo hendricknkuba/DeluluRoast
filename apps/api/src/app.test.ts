@@ -79,3 +79,36 @@ test("createApp applies the rate limit only to roast generation", async () => {
 
   await app.close();
 });
+
+test("createApp hides internal error details behind a generic 500 response", async () => {
+  const app = await createApp({
+    OPENAI_API_KEY: "test-key",
+    OPENAI_MODEL: "gpt-4o-mini",
+    ALLOWED_ORIGIN: "http://localhost:5173",
+    PORT: 3001,
+    RATE_LIMIT_MAX: 20,
+    RATE_LIMIT_WINDOW_MS: 60_000,
+  });
+
+  app.get("/test-error", async () => {
+    throw new Error("database connection failed: postgres://secret-host");
+  });
+
+  const response = await app.inject({
+    method: "GET",
+    url: "/test-error",
+  });
+
+  assert.equal(response.statusCode, 500);
+  assert.deepEqual(response.json(), {
+    ok: false,
+    error: {
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong.",
+    },
+  });
+  assert.equal(response.body.includes("secret-host"), false);
+  assert.equal(response.body.includes("database connection failed"), false);
+
+  await app.close();
+});

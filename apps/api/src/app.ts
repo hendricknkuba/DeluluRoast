@@ -3,6 +3,7 @@ import rateLimit from "@fastify/rate-limit";
 import Fastify from "fastify";
 import type { ApiEnv } from "./env.js";
 import { errorResponse } from "./lib/api-response.js";
+import { sanitizeErrorForLog } from "./lib/log-sanitizer.js";
 import { registerHealthRoute } from "./routes/health.route.js";
 import { registerRoastRoute } from "./routes/roast.route.js";
 
@@ -12,6 +13,15 @@ type CreateAppOptions = {
     timeWindow: number | string;
   };
 };
+
+function hasStatusCode(error: unknown): error is { statusCode: number } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "statusCode" in error &&
+    typeof error.statusCode === "number"
+  );
+}
 
 export async function createApp(env: ApiEnv, options?: CreateAppOptions) {
   const app = Fastify({ logger: true });
@@ -35,7 +45,7 @@ export async function createApp(env: ApiEnv, options?: CreateAppOptions) {
   });
 
   app.setErrorHandler((error, _request, reply) => {
-    if (error.statusCode === 429) {
+    if (hasStatusCode(error) && error.statusCode === 429) {
       return reply
         .status(429)
         .send(
@@ -46,7 +56,7 @@ export async function createApp(env: ApiEnv, options?: CreateAppOptions) {
         );
     }
 
-    app.log.error(error);
+    app.log.error(sanitizeErrorForLog(error));
 
     return reply
       .status(500)

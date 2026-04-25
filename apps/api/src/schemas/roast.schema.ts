@@ -12,14 +12,21 @@ const blockedContent = [
   "ignore previous instructions",
 ];
 
+const normalizedSubjectSchema = z
+  .string()
+  .trim()
+  .transform((value) => value.replace(/\s+/g, " "))
+  .pipe(
+    z
+      .string()
+      .min(1, "Subject is required")
+      .max(80, "Subject is too long"),
+  );
+
 export const roastRequestSchema = z.object({
   mode: z.enum(RoastModes),
   severity: z.enum(RoastSeverities),
-  subject: z
-    .string()
-    .trim()
-    .min(1, "Subject is required")
-    .max(80, "Subject is too long")
+  subject: normalizedSubjectSchema
     .refine(
       (value) =>
         !blockedContent.some((term) => value.toLowerCase().includes(term)),

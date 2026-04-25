@@ -14,3 +14,17 @@ export function getOpenAIClient() {
   return client;
 }
 
+type RewriteRoastInput = {
+  subject: string;
+  draftRoast: string;
+};
+
+export async function rewriteRoastWithOpenAI(input: RewriteRoastInput) {
+  const openAIClient = getOpenAIClient();
+
+  if (!openAIClient || !process.env.OPENAI_MODEL) {
+    return input.draftRoast;
+  }
+
+  return input.draftRoast;
+}

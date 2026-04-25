@@ -8,6 +8,7 @@ export async function registerRoastRoute(app: FastifyInstance) {
 
     if (!parsed.success) {
       return reply.status(400).send({
+        ok: false,
         error: "Invalid roast input",
         details: parsed.error.flatten(),
       });
@@ -15,7 +16,11 @@ export async function registerRoastRoute(app: FastifyInstance) {
 
     const roast = await buildRoast(parsed.data);
 
-    return reply.send({ roast });
+    return reply.send({
+      ok: true,
+      data: {
+        roast,
+      },
+    });
   });
 }
-

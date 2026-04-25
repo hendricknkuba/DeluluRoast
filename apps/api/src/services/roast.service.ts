@@ -1,5 +1,6 @@
 import type { RoastRequest } from "@delulu-roast/shared";
 import { roastTemplates } from "../data/roast-templates.js";
+import { rewriteRoastWithOpenAI } from "./openai.service.js";
 
 function getTemplate(input: Pick<RoastRequest, "mode" | "severity">) {
   return roastTemplates.find(
@@ -18,5 +19,10 @@ export function buildLocalRoast(input: RoastRequest) {
 }
 
 export async function buildRoast(input: RoastRequest) {
-  return buildLocalRoast(input);
+  const draftRoast = buildLocalRoast(input);
+
+  return rewriteRoastWithOpenAI({
+    subject: input.subject,
+    draftRoast,
+  });
 }

@@ -69,6 +69,13 @@ test("createApp applies the rate limit only to roast generation", async () => {
   assert.equal(firstResponse.statusCode, 200);
   assert.equal(secondResponse.statusCode, 429);
   assert.equal(healthResponse.statusCode, 200);
+  assert.deepEqual(secondResponse.json(), {
+    ok: false,
+    error: {
+      code: "RATE_LIMIT_EXCEEDED",
+      message: "Too many roast requests. Try again later.",
+    },
+  });
 
   await app.close();
 });

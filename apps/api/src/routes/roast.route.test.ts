@@ -50,9 +50,9 @@ test("POST /roasts/generate returns a stable validation error response shape", a
   const body = response.json();
 
   assert.equal(body.ok, false);
-  assert.equal(body.error, "Invalid roast input");
-  assert.ok(body.details);
-  assert.deepEqual(body.details.fieldErrors.subject, [
+  assert.equal(body.error.code, "VALIDATION_ERROR");
+  assert.equal(body.error.message, "Invalid roast input");
+  assert.deepEqual(body.error.details.fieldErrors.subject, [
     "Subject contains blocked content",
   ]);
 

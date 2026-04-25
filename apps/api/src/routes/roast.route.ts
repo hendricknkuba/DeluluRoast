@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { errorResponse, okResponse } from "../lib/api-response.js";
 import { roastRequestSchema } from "../schemas/roast.schema.js";
 import { buildRoast } from "../services/roast.service.js";
 
@@ -24,21 +25,22 @@ export async function registerRoastRoute(
       const parsed = roastRequestSchema.safeParse(request.body);
 
       if (!parsed.success) {
-        return reply.status(400).send({
-          ok: false,
-          error: "Invalid roast input",
-          details: parsed.error.flatten(),
-        });
+        return reply
+          .status(400)
+          .send(
+            errorResponse("VALIDATION_ERROR", "Invalid roast input", {
+              fieldErrors: parsed.error.flatten().fieldErrors,
+            }),
+          );
       }
 
       const roast = await buildRoast(parsed.data);
 
-      return reply.send({
-        ok: true,
-        data: {
+      return reply.send(
+        okResponse({
           roast,
-        },
-      });
+        }),
+      );
     },
   );
 }

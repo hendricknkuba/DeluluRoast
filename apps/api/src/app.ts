@@ -20,13 +20,18 @@ export async function createApp(env: ApiEnv, options?: CreateAppOptions) {
   });
 
   await app.register(rateLimit, {
-    global: true,
-    max: options?.rateLimit?.max ?? 20,
-    timeWindow: options?.rateLimit?.timeWindow ?? "1 minute",
+    global: false,
+    max: options?.rateLimit?.max ?? env.RATE_LIMIT_MAX,
+    timeWindow: options?.rateLimit?.timeWindow ?? env.RATE_LIMIT_WINDOW_MS,
   });
 
   await registerHealthRoute(app);
-  await registerRoastRoute(app);
+  await registerRoastRoute(app, {
+    rateLimit: {
+      max: options?.rateLimit?.max ?? env.RATE_LIMIT_MAX,
+      timeWindow: options?.rateLimit?.timeWindow ?? env.RATE_LIMIT_WINDOW_MS,
+    },
+  });
 
   return app;
 }

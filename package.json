@@ -1,0 +1,11 @@
+{
+  "name": "delulu-roast",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @delulu-roast/web dev",
+    "dev:api": "pnpm --filter @delulu-roast/api dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

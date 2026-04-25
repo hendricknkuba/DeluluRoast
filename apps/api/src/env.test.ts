@@ -8,12 +8,16 @@ test("parseApiEnv accepts required backend env values", () => {
     OPENAI_API_KEY: "test-key",
     OPENAI_MODEL: "gpt-4o-mini",
     ALLOWED_ORIGIN: "http://localhost:5173",
+    RATE_LIMIT_MAX: "10",
+    RATE_LIMIT_WINDOW_MS: "30000",
   });
 
   assert.equal(parsed.OPENAI_API_KEY, "test-key");
   assert.equal(parsed.OPENAI_MODEL, "gpt-4o-mini");
   assert.equal(parsed.ALLOWED_ORIGIN, "http://localhost:5173");
   assert.equal(parsed.PORT, 3001);
+  assert.equal(parsed.RATE_LIMIT_MAX, 10);
+  assert.equal(parsed.RATE_LIMIT_WINDOW_MS, 30000);
 });
 
 test("parseApiEnv rejects missing required backend env values", () => {

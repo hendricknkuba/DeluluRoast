@@ -23,12 +23,13 @@ test("parseApiEnv accepts required backend env values", () => {
   assert.equal(parsed.OPENAI_REWRITE_MIN_SEVERITY, "savage");
   assert.equal(parsed.OPENAI_REWRITE_REQUIRE_CONTEXT, true);
   assert.equal(parsed.ALLOWED_ORIGIN, undefined);
+  assert.equal(parsed.ALLOWED_ORIGINS, undefined);
   assert.equal(parsed.PORT, 3001);
   assert.equal(parsed.RATE_LIMIT_MAX, 10);
   assert.equal(parsed.RATE_LIMIT_WINDOW_MS, 30000);
 });
 
-test("parseApiEnv rejects missing ALLOWED_ORIGIN in production", () => {
+test("parseApiEnv rejects missing allowed origins in production", () => {
   assert.throws(
     () =>
       parseApiEnv({
@@ -43,4 +44,17 @@ test("parseApiEnv rejects missing ALLOWED_ORIGIN in production", () => {
       return true;
     },
   );
+});
+
+test("parseApiEnv accepts comma-separated allowed origins in production", () => {
+  const parsed = parseApiEnv({
+    APP_ENV: "production",
+    OPENAI_API_KEY: "test-key",
+    OPENAI_MODEL: "gpt-4o-mini",
+    OPENAI_CONTEXT_MODEL: "gpt-4.1-mini",
+    OPENAI_MODERATION_MODEL: "omni-moderation-latest",
+    ALLOWED_ORIGINS: "https://www.deluluroast.com, https://deluluroast.com",
+  });
+
+  assert.equal(parsed.ALLOWED_ORIGINS, "https://www.deluluroast.com, https://deluluroast.com");
 });

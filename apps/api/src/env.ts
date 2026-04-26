@@ -18,17 +18,18 @@ const apiEnvSchema = z
       .enum(["mild", "savage", "brutal"])
       .default("savage"),
     OPENAI_REWRITE_REQUIRE_CONTEXT: z.coerce.boolean().default(true),
+    ALLOWED_ORIGINS: z.string().trim().optional(),
     ALLOWED_ORIGIN: z.string().trim().optional(),
     PORT: z.coerce.number().int().positive().default(3001),
     RATE_LIMIT_MAX: z.coerce.number().int().positive().default(20),
     RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   })
   .superRefine((env, context) => {
-    if (env.APP_ENV === "production" && !env.ALLOWED_ORIGIN) {
+    if (env.APP_ENV === "production" && !resolveCorsOrigins(env).length) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "ALLOWED_ORIGIN is required in production",
-        path: ["ALLOWED_ORIGIN"],
+        message: "At least one allowed origin is required in production",
+        path: ["ALLOWED_ORIGINS"],
       });
     }
   });
@@ -39,6 +40,29 @@ export function parseApiEnv(env: NodeJS.ProcessEnv): ApiEnv {
   return apiEnvSchema.parse(env);
 }
 
-export function resolveCorsOrigin(env: ApiEnv) {
-  return env.ALLOWED_ORIGIN || "http://localhost:5173";
+function parseOriginList(value: string | undefined) {
+  return value
+    ? value
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : [];
+}
+
+export function resolveCorsOrigins(env: Pick<ApiEnv, "APP_ENV" | "ALLOWED_ORIGINS" | "ALLOWED_ORIGIN">) {
+  const origins = [
+    ...parseOriginList(env.ALLOWED_ORIGINS),
+    ...parseOriginList(env.ALLOWED_ORIGIN),
+  ];
+  const uniqueOrigins = [...new Set(origins)];
+
+  if (uniqueOrigins.length > 0) {
+    return uniqueOrigins;
+  }
+
+  if (env.APP_ENV === "development") {
+    return ["http://localhost:5173"];
+  }
+
+  return [];
 }

@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createApp } from "./app.js";
+import { toApiConfig, type ApiEnv } from "./env.js";
 
-const testEnv = {
+const testEnv: ApiEnv = {
   APP_ENV: "development" as const,
   OPENAI_API_KEY: "test-key",
   OPENAI_MODEL: "gpt-4o-mini",
@@ -16,9 +17,10 @@ const testEnv = {
   RATE_LIMIT_MAX: 20,
   RATE_LIMIT_WINDOW_MS: 60_000,
 };
+const testConfig = toApiConfig(testEnv);
 
 test("createApp wires routes using parsed env config", async () => {
-  const app = await createApp(testEnv);
+  const app = await createApp(testConfig);
 
   const response = await app.inject({
     method: "GET",
@@ -32,7 +34,7 @@ test("createApp wires routes using parsed env config", async () => {
 });
 
 test("createApp allows configured origins without combining them", async () => {
-  const app = await createApp(testEnv);
+  const app = await createApp(testConfig);
 
   const response = await app.inject({
     method: "OPTIONS",
@@ -58,7 +60,7 @@ test("createApp allows configured origins without combining them", async () => {
 
 test("createApp applies the rate limit only to roast generation", async () => {
   const app = await createApp(
-    testEnv,
+    testConfig,
     {
       rateLimit: {
         max: 1,
@@ -107,7 +109,7 @@ test("createApp applies the rate limit only to roast generation", async () => {
 });
 
 test("createApp hides internal error details behind a generic 500 response", async () => {
-  const app = await createApp(testEnv);
+  const app = await createApp(testConfig);
 
   app.get("/test-error", async () => {
     throw new Error("database connection failed: postgres://secret-host");

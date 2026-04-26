@@ -1,7 +1,7 @@
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import Fastify from "fastify";
-import { resolveCorsOrigins, type ApiEnv } from "./env.js";
+import type { ApiConfig } from "./env.js";
 import { errorResponse } from "./lib/api-response.js";
 import { sanitizeErrorForLog } from "./lib/log-sanitizer.js";
 import { registerHealthRoute } from "./routes/health.route.js";
@@ -23,24 +23,25 @@ function hasStatusCode(error: unknown): error is { statusCode: number } {
   );
 }
 
-export async function createApp(env: ApiEnv, options?: CreateAppOptions) {
+export async function createApp(config: ApiConfig, options?: CreateAppOptions) {
   const app = Fastify({ logger: true });
 
   await app.register(cors, {
-    origin: resolveCorsOrigins(env),
+    origin: config.CORS_ORIGINS,
   });
 
   await app.register(rateLimit, {
     global: false,
-    max: options?.rateLimit?.max ?? env.RATE_LIMIT_MAX,
-    timeWindow: options?.rateLimit?.timeWindow ?? env.RATE_LIMIT_WINDOW_MS,
+    max: options?.rateLimit?.max ?? config.RATE_LIMIT_MAX,
+    timeWindow: options?.rateLimit?.timeWindow ?? config.RATE_LIMIT_WINDOW_MS,
   });
 
   await registerHealthRoute(app);
   await registerRoastRoute(app, {
+    config,
     rateLimit: {
-      max: options?.rateLimit?.max ?? env.RATE_LIMIT_MAX,
-      timeWindow: options?.rateLimit?.timeWindow ?? env.RATE_LIMIT_WINDOW_MS,
+      max: options?.rateLimit?.max ?? config.RATE_LIMIT_MAX,
+      timeWindow: options?.rateLimit?.timeWindow ?? config.RATE_LIMIT_WINDOW_MS,
     },
   });
 

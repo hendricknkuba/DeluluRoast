@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { FooterBar } from "./FooterBar";
+import { TopNav } from "./TopNav";
 
 type RoastShellProps = {
   children: ReactNode;
@@ -6,27 +8,11 @@ type RoastShellProps = {
 
 export function RoastShell({ children }: RoastShellProps) {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "24px 16px 48px",
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
-      <section
-        style={{
-          width: "100%",
-          maxWidth: 480,
-          background: "rgba(255, 255, 255, 0.82)",
-          border: "1px solid rgba(114, 76, 138, 0.12)",
-          borderRadius: 24,
-          padding: 24,
-          boxShadow: "0 24px 60px rgba(61, 31, 74, 0.12)",
-          backdropFilter: "blur(10px)",
-        }}
-      >
+    <main className="min-h-screen px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+      <section className="mx-auto grid w-full max-w-[1490px] gap-5 rounded-[36px] border border-[rgba(255,255,255,0.85)] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,255,255,0.72))] p-4 shadow-[0_30px_90px_rgba(31,23,32,0.08),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur sm:p-5 lg:gap-4 lg:p-6">
+        <TopNav />
         {children}
+        <FooterBar />
       </section>
     </main>
   );

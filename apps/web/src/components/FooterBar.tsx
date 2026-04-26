@@ -27,17 +27,32 @@ export function FooterBar() {
 
       <div className="flex flex-wrap items-center justify-center gap-3 md:justify-end">
         <span className="w-full text-center text-[0.96rem] sm:w-auto sm:text-[1.02rem]">
-          Share the chaos
+          Socials soon
         </span>
-        <CircleIcon>
-          <XIcon className="h-6 w-6" />
-        </CircleIcon>
-        <CircleIcon>
-          <InstagramIcon className="h-6 w-6" />
-        </CircleIcon>
-        <CircleIcon>
-          <LinkIcon className="h-6 w-6" />
-        </CircleIcon>
+        <span
+          aria-label="X coming soon"
+          className="cursor-default rounded-full opacity-70"
+        >
+          <CircleIcon>
+            <XIcon className="h-6 w-6" />
+          </CircleIcon>
+        </span>
+        <span
+          aria-label="Instagram coming soon"
+          className="cursor-default rounded-full opacity-70"
+        >
+          <CircleIcon>
+            <InstagramIcon className="h-6 w-6" />
+          </CircleIcon>
+        </span>
+        <span
+          aria-label="Link hub coming soon"
+          className="cursor-default rounded-full opacity-70"
+        >
+          <CircleIcon>
+            <LinkIcon className="h-6 w-6" />
+          </CircleIcon>
+        </span>
       </div>
     </footer>
   );

@@ -154,6 +154,7 @@ export function RoastGeneratorPage() {
 
           {viewState.kind === "roast" ? (
             <ResultCard
+              key={`${mode}:${severity}:${subject}:${viewState.roast}`}
               mode={mode}
               roast={viewState.roast}
               severity={severity}

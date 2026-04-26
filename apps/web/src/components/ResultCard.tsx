@@ -23,8 +23,6 @@ export function ResultCard({
   const [visibleRoast, setVisibleRoast] = useState("");
 
   useEffect(() => {
-    setVisibleRoast("");
-
     let currentIndex = 0;
     const intervalId = window.setInterval(() => {
       currentIndex += 1;

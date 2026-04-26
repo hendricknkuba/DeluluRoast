@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CopyIcon, ShareIcon, SparkleIcon } from "./AppIcons";
 
 type ResultCardProps = {
+  animationKey: number;
   mode: string;
   roast: string;
   severity: string;
@@ -13,6 +14,7 @@ function formatLabel(value: string) {
 }
 
 export function ResultCard({
+  animationKey,
   mode,
   roast,
   severity,
@@ -23,6 +25,8 @@ export function ResultCard({
   const [visibleRoast, setVisibleRoast] = useState("");
 
   useEffect(() => {
+    setVisibleRoast("");
+
     let currentIndex = 0;
     const intervalId = window.setInterval(() => {
       currentIndex += 1;
@@ -34,7 +38,7 @@ export function ResultCard({
     }, 18);
 
     return () => window.clearInterval(intervalId);
-  }, [roast]);
+  }, [animationKey, roast]);
 
   async function handleCopy() {
     await navigator.clipboard.writeText(roast);

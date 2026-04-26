@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   type RoastMode,
   type RoastSeverity,
@@ -21,6 +21,7 @@ type RoastViewState =
     }
   | {
       kind: "roast";
+      animationKey: number;
       roast: string;
       reason: "enhanced" | "fallback_local";
     }
@@ -45,6 +46,7 @@ export function RoastGeneratorPage() {
   const [requestError, setRequestError] = useState("");
   const [viewState, setViewState] = useState<RoastViewState>({ kind: "idle" });
   const [isLoading, setIsLoading] = useState(false);
+  const roastAnimationKeyRef = useRef(0);
 
   async function submitRoast(nextSubject: string) {
     setSubjectError("");
@@ -87,8 +89,10 @@ export function RoastGeneratorPage() {
         return;
       }
 
+      roastAnimationKeyRef.current += 1;
       setViewState({
         kind: "roast",
+        animationKey: roastAnimationKeyRef.current,
         roast: result.roast,
         reason:
           result.reason === "enhanced" ? "enhanced" : "fallback_local",
@@ -155,7 +159,7 @@ export function RoastGeneratorPage() {
 
           {viewState.kind === "roast" ? (
             <ResultCard
-              key={`${mode}:${severity}:${subject}:${viewState.roast}`}
+              animationKey={viewState.animationKey}
               mode={mode}
               roast={viewState.roast}
               severity={severity}

@@ -1,9 +1,11 @@
 import type { FastifyInstance } from "fastify";
+import type { ApiConfig } from "../env.js";
 import { errorResponse, okResponse } from "../lib/api-response.js";
 import { roastRequestSchema } from "../schemas/roast.schema.js";
 import { buildRoast } from "../services/roast.service.js";
 
 type RoastRouteOptions = {
+  config: ApiConfig;
   rateLimit?: {
     max: number;
     timeWindow: number | string;
@@ -12,7 +14,7 @@ type RoastRouteOptions = {
 
 export async function registerRoastRoute(
   app: FastifyInstance,
-  options?: RoastRouteOptions,
+  options: RoastRouteOptions,
 ) {
   app.post(
     "/roasts/generate",
@@ -34,7 +36,7 @@ export async function registerRoastRoute(
           );
       }
 
-      const roast = await buildRoast(parsed.data);
+      const roast = await buildRoast(parsed.data, undefined, options.config);
 
       if (roast.kind === "ambiguous") {
         return reply.send(

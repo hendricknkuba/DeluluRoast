@@ -13,20 +13,22 @@ function CircleIcon({ children }: { children: ReactNode }) {
 
 export function FooterBar() {
   return (
-    <footer className="grid gap-4 rounded-[30px] border border-[#f0f0f0] bg-[#ffffff] px-4 py-4 text-sm text-[#7b747c] shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:px-6 md:grid-cols-[auto_1fr_auto] md:items-center">
-      <div className="flex items-center gap-3">
+    <footer className="grid gap-4 rounded-[24px] border border-[#f0f0f0] bg-[#ffffff] px-4 py-4 text-sm text-[#7b747c] shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:rounded-[30px] sm:px-6 md:grid-cols-[auto_1fr_auto] md:items-center">
+      <div className="flex items-center justify-center gap-3 md:justify-start">
         <CircleIcon>
           <SparkleIcon className="h-5 w-5" />
         </CircleIcon>
         <span>DeluluRoast © {currentYear}</span>
       </div>
 
-      <p className="m-0 text-center text-[1.02rem]">
+      <p className="m-0 text-center text-[0.96rem] sm:text-[1.02rem]">
         Made for fun. Not for the faint of heart.
       </p>
 
-      <div className="flex items-center justify-center gap-3 md:justify-end">
-        <span className="text-[1.02rem]">Share the chaos</span>
+      <div className="flex flex-wrap items-center justify-center gap-3 md:justify-end">
+        <span className="w-full text-center text-[0.96rem] sm:w-auto sm:text-[1.02rem]">
+          Share the chaos
+        </span>
         <CircleIcon>
           <XIcon className="h-6 w-6" />
         </CircleIcon>

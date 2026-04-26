@@ -20,9 +20,9 @@ export function MessageCard({
   tone = "default",
 }: MessageCardProps) {
   return (
-    <section className={`grid gap-2 rounded-[24px] border p-5 ${toneClasses[tone]}`}>
-      <h2 className="m-0 text-lg">{title}</h2>
-      <p className="m-0 text-sm leading-6">{message}</p>
+    <section className={`grid gap-2 rounded-[20px] border p-4 sm:rounded-[24px] sm:p-5 ${toneClasses[tone]}`}>
+      <h2 className="m-0 text-[1.05rem] sm:text-lg">{title}</h2>
+      <p className="m-0 text-[0.92rem] leading-6 sm:text-sm">{message}</p>
     </section>
   );
 }

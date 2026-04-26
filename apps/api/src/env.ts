@@ -35,9 +35,23 @@ const apiEnvSchema = z
   });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;
+export type ApiConfig = ApiEnv & {
+  CORS_ORIGINS: string[];
+};
 
 export function parseApiEnv(env: NodeJS.ProcessEnv): ApiEnv {
   return apiEnvSchema.parse(env);
+}
+
+export function toApiConfig(env: ApiEnv): ApiConfig {
+  return {
+    ...env,
+    CORS_ORIGINS: resolveCorsOrigins(env),
+  };
+}
+
+export function createApiConfig(env: NodeJS.ProcessEnv): ApiConfig {
+  return toApiConfig(parseApiEnv(env));
 }
 
 function parseOriginList(value: string | undefined) {

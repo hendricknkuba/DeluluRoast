@@ -1,7 +1,27 @@
 import type { RoastRequest } from "@delulu-roast/shared";
 
 export function getApiBaseUrl() {
-  return import.meta.env.VITE_API_URL || "http://localhost:3001";
+  const configured = import.meta.env.VITE_API_URL?.trim();
+
+  if (!configured) {
+    return "http://localhost:3001";
+  }
+
+  const trimmed = configured.replace(/\/+$/, "");
+
+  if (trimmed.startsWith("/")) {
+    return trimmed;
+  }
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  const scheme = /^(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(trimmed)
+    ? "http"
+    : "https";
+
+  return `${scheme}://${trimmed}`;
 }
 
 export type RoastOption = {
@@ -69,6 +89,15 @@ export async function generateRoast(payload: RoastRequest) {
     },
     body: JSON.stringify(payload),
   });
+
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!contentType.includes("application/json")) {
+    const fallbackText = await response.text();
+    throw new Error(
+      `API returned a non-JSON response (${response.status}). ${fallbackText.slice(0, 120)}`,
+    );
+  }
 
   const body = (await response.json()) as
     | GenerateRoastSuccess

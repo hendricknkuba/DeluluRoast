@@ -1,5 +1,8 @@
 import type { RoastRequest } from "@delulu-roast/shared";
 
+const GENERIC_REQUEST_ERROR =
+  "Something went wrong. Please try again later.";
+
 export function getApiBaseUrl() {
   const configured = import.meta.env.VITE_API_URL?.trim();
 
@@ -93,10 +96,8 @@ export async function generateRoast(payload: RoastRequest) {
   const contentType = response.headers.get("content-type") || "";
 
   if (!contentType.includes("application/json")) {
-    const fallbackText = await response.text();
-    throw new Error(
-      `API returned a non-JSON response (${response.status}). ${fallbackText.slice(0, 120)}`,
-    );
+    await response.text();
+    throw new Error(GENERIC_REQUEST_ERROR);
   }
 
   const body = (await response.json()) as
@@ -108,7 +109,7 @@ export async function generateRoast(payload: RoastRequest) {
       ? null
       : body.error.details?.fieldErrors?.subject?.[0] || null;
 
-    throw new Error(fieldError || (body.ok ? "Request failed" : body.error.message));
+    throw new Error(fieldError || GENERIC_REQUEST_ERROR);
   }
 
   if (body.data.options?.length) {

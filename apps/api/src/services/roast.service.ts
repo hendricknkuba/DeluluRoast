@@ -82,7 +82,7 @@ const defaultDependencies: RoastServiceDependencies = {
   rewriteRoastWithOpenAI,
 };
 
-const severityRank = {
+const severityRank: Record<RoastRequest["severity"], number> = {
   mild: 0,
   savage: 1,
   brutal: 2,

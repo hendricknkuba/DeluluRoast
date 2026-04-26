@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { toApiConfig, type ApiEnv } from "../env.js";
 import {
   resolveAmbiguousTargetOptions,
   classifyKpopTarget,
@@ -10,17 +11,33 @@ import {
   sanitizeSafeContext,
 } from "./openai.service.js";
 
+const testConfig = toApiConfig({
+  APP_ENV: "development",
+  OPENAI_API_KEY: "test-key",
+  OPENAI_MODEL: "gpt-4o-mini",
+  OPENAI_CONTEXT_MODEL: "gpt-4.1-mini",
+  OPENAI_MODERATION_MODEL: "omni-moderation-latest",
+  OPENAI_REWRITE_ENABLED: true,
+  OPENAI_REWRITE_MIN_SEVERITY: "savage",
+  OPENAI_REWRITE_REQUIRE_CONTEXT: true,
+  ALLOWED_ORIGINS: "http://localhost:5173",
+  ALLOWED_ORIGIN: undefined,
+  PORT: 3001,
+  RATE_LIMIT_MAX: 20,
+  RATE_LIMIT_WINDOW_MS: 60_000,
+} satisfies ApiEnv);
+
 test("rewriteRoastWithOpenAI falls back to the local draft when OpenAI is unavailable", async () => {
-  const originalApiKey = process.env.OPENAI_API_KEY;
-  const originalModel = process.env.OPENAI_MODEL;
-
-  delete process.env.OPENAI_API_KEY;
-  delete process.env.OPENAI_MODEL;
-
   const roast = await rewriteRoastWithOpenAI({
     subject: "IU",
     draftRoast:
       "IU is so babied by this fandom they could trip over a confetti cannon and still get called graceful.",
+  }, {
+    config: {
+      ...testConfig,
+      OPENAI_API_KEY: "",
+      OPENAI_MODEL: "",
+    },
   });
 
   assert.deepEqual(roast, {
@@ -29,20 +46,9 @@ test("rewriteRoastWithOpenAI falls back to the local draft when OpenAI is unavai
     source: "local",
     reason: "unavailable",
   });
-
-  if (originalApiKey) {
-    process.env.OPENAI_API_KEY = originalApiKey;
-  }
-
-  if (originalModel) {
-    process.env.OPENAI_MODEL = originalModel;
-  }
 });
 
 test("rewriteRoastWithOpenAI falls back to the local draft when the OpenAI call fails", async () => {
-  const originalModel = process.env.OPENAI_MODEL;
-  process.env.OPENAI_MODEL = "gpt-4o-mini";
-
   const roast = await rewriteRoastWithOpenAI(
     {
       subject: "IU",
@@ -50,6 +56,7 @@ test("rewriteRoastWithOpenAI falls back to the local draft when the OpenAI call 
         "IU is so babied by this fandom they could trip over a confetti cannon and still get called graceful.",
     },
     {
+      config: testConfig,
       client: {
         responses: {
           create: async () => {
@@ -66,18 +73,9 @@ test("rewriteRoastWithOpenAI falls back to the local draft when the OpenAI call 
     source: "local",
     reason: "fallback_error",
   });
-
-  if (originalModel) {
-    process.env.OPENAI_MODEL = originalModel;
-  } else {
-    delete process.env.OPENAI_MODEL;
-  }
 });
 
 test("rewriteRoastWithOpenAI tells the model to preserve structure and specific details", async () => {
-  const originalModel = process.env.OPENAI_MODEL;
-  process.env.OPENAI_MODEL = "gpt-4o-mini";
-
   let capturedParams:
     | {
         input: Array<{
@@ -94,6 +92,7 @@ test("rewriteRoastWithOpenAI tells the model to preserve structure and specific 
         "Be serious, Jungkook has you reacting like every minor facial expression deserves a full emergency panel discussion. The funniest part is how the golden maknae image angle somehow made this even more dramatic. It is giving unpaid intern for a fandom crisis team that never asked for your resume.",
     },
     {
+      config: testConfig,
       client: {
         responses: {
           create: async (params) => {
@@ -117,18 +116,9 @@ test("rewriteRoastWithOpenAI tells the model to preserve structure and specific 
   assert.match(capturedParams.input[0].content, /End with a strong punchline/);
   assert.match(capturedParams.input[0].content, /Keep the existing joke structure/);
   assert.match(capturedParams.input[1].content, /golden maknae image angle/);
-
-  if (originalModel) {
-    process.env.OPENAI_MODEL = originalModel;
-  } else {
-    delete process.env.OPENAI_MODEL;
-  }
 });
 
 test("rewriteRoastWithOpenAI falls back to the local draft when the model output is unsafe", async () => {
-  const originalModel = process.env.OPENAI_MODEL;
-  process.env.OPENAI_MODEL = "gpt-4o-mini";
-
   const roast = await rewriteRoastWithOpenAI(
     {
       subject: "IU",
@@ -136,6 +126,7 @@ test("rewriteRoastWithOpenAI falls back to the local draft when the model output
         "IU is so babied by this fandom they could trip over a confetti cannon and still get called graceful.",
     },
     {
+      config: testConfig,
       client: {
         responses: {
           create: async () => ({
@@ -152,18 +143,9 @@ test("rewriteRoastWithOpenAI falls back to the local draft when the model output
     source: "local",
     reason: "fallback_rejected_output",
   });
-
-  if (originalModel) {
-    process.env.OPENAI_MODEL = originalModel;
-  } else {
-    delete process.env.OPENAI_MODEL;
-  }
 });
 
 test("rewriteRoastWithOpenAI falls back to the local draft when the model output is too generic", async () => {
-  const originalModel = process.env.OPENAI_MODEL;
-  process.env.OPENAI_MODEL = "gpt-4o-mini";
-
   const roast = await rewriteRoastWithOpenAI(
     {
       subject: "TXT",
@@ -171,6 +153,7 @@ test("rewriteRoastWithOpenAI falls back to the local draft when the model output
         "Be serious, stanning TXT this hard makes it seem like one bad take online could send your entire personality into buffering mode. It would be charming if it were not happening so loudly in public.",
     },
     {
+      config: testConfig,
       client: {
         responses: {
           create: async () => ({
@@ -187,36 +170,22 @@ test("rewriteRoastWithOpenAI falls back to the local draft when the model output
     source: "local",
     reason: "fallback_rejected_output",
   });
-
-  if (originalModel) {
-    process.env.OPENAI_MODEL = originalModel;
-  } else {
-    delete process.env.OPENAI_MODEL;
-  }
 });
 
 test("classifyKpopTarget uses the local K-pop fallback when OpenAI is unavailable", async () => {
-  const originalApiKey = process.env.OPENAI_API_KEY;
-  const originalModel = process.env.OPENAI_MODEL;
-
-  delete process.env.OPENAI_API_KEY;
-  delete process.env.OPENAI_MODEL;
-
-  const result = await classifyKpopTarget("BTS");
+  const result = await classifyKpopTarget("BTS", {
+    config: {
+      ...testConfig,
+      OPENAI_API_KEY: "",
+      OPENAI_CONTEXT_MODEL: "",
+    },
+  });
 
   assert.deepEqual(result, {
     isKpopRelated: true,
     entityType: "group",
     safeContext: "",
   });
-
-  if (originalApiKey) {
-    process.env.OPENAI_API_KEY = originalApiKey;
-  }
-
-  if (originalModel) {
-    process.env.OPENAI_MODEL = originalModel;
-  }
 });
 
 test("sanitizeSafeContext removes factual artist bio text", () => {
@@ -240,10 +209,8 @@ test("sanitizeSafeContext keeps short fandom-angle phrases", () => {
 });
 
 test("classifyKpopTarget strips bio-style safeContext from model output", async () => {
-  const originalModel = process.env.OPENAI_CONTEXT_MODEL;
-  process.env.OPENAI_CONTEXT_MODEL = "gpt-4.1-mini";
-
   const result = await classifyKpopTarget("Stray Kids", {
+    config: testConfig,
     client: {
       responses: {
         parse: async () => ({
@@ -263,12 +230,6 @@ test("classifyKpopTarget strips bio-style safeContext from model output", async 
     entityType: "group",
     safeContext: "",
   });
-
-  if (originalModel) {
-    process.env.OPENAI_CONTEXT_MODEL = originalModel;
-  } else {
-    delete process.env.OPENAI_CONTEXT_MODEL;
-  }
 });
 
 test("normalizeTargetInput lowercases and collapses extra spaces", () => {
@@ -323,7 +284,9 @@ test("resolveAmbiguousTargetOptions returns choices for ambiguous names", () => 
 });
 
 test("resolveTargetResolution resolves unique K-pop names directly", async () => {
-  const result = await resolveTargetResolution("BTS");
+  const result = await resolveTargetResolution("BTS", {
+    config: testConfig,
+  });
 
   assert.deepEqual(result, {
     isAmbiguous: false,
@@ -333,7 +296,9 @@ test("resolveTargetResolution resolves unique K-pop names directly", async () =>
 });
 
 test("resolveTargetResolution falls back to a direct resolution for clean inputs", async () => {
-  const result = await resolveTargetResolution("NMIXX");
+  const result = await resolveTargetResolution("NMIXX", {
+    config: testConfig,
+  });
 
   assert.deepEqual(result, {
     isAmbiguous: false,
@@ -343,10 +308,8 @@ test("resolveTargetResolution falls back to a direct resolution for clean inputs
 });
 
 test("resolveTargetResolution returns model-backed ambiguity options when available", async () => {
-  const originalContextModel = process.env.OPENAI_CONTEXT_MODEL;
-  process.env.OPENAI_CONTEXT_MODEL = "gpt-4.1-mini";
-
   const result = await resolveTargetResolution("Mark", {
+    config: testConfig,
     client: {
       responses: {
         parse: async () => ({
@@ -394,10 +357,4 @@ test("resolveTargetResolution returns model-backed ambiguity options when availa
       },
     ],
   });
-
-  if (originalContextModel) {
-    process.env.OPENAI_CONTEXT_MODEL = originalContextModel;
-  } else {
-    delete process.env.OPENAI_CONTEXT_MODEL;
-  }
 });

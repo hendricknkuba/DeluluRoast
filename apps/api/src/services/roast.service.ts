@@ -1,8 +1,10 @@
 import type { RoastRequest } from "@delulu-roast/shared";
 import { buildStructuredRoast, roastTemplates } from "../data/roast-templates.js";
+import type { ApiConfig } from "../env.js";
 import {
   classifyKpopTarget,
   moderateTargetInput,
+  type OpenAIServiceConfig,
   resolveTargetResolution,
   rewriteRoastWithOpenAI,
 } from "./openai.service.js";
@@ -75,6 +77,17 @@ type RoastServiceDependencies = {
   rewriteRoastWithOpenAI: typeof rewriteRoastWithOpenAI;
 };
 
+type RoastServiceConfig = Pick<
+  ApiConfig,
+  | "OPENAI_API_KEY"
+  | "OPENAI_MODEL"
+  | "OPENAI_CONTEXT_MODEL"
+  | "OPENAI_MODERATION_MODEL"
+  | "OPENAI_REWRITE_ENABLED"
+  | "OPENAI_REWRITE_MIN_SEVERITY"
+  | "OPENAI_REWRITE_REQUIRE_CONTEXT"
+>;
+
 const defaultDependencies: RoastServiceDependencies = {
   moderateTargetInput,
   classifyKpopTarget,
@@ -91,12 +104,10 @@ const severityRank: Record<RoastRequest["severity"], number> = {
 function shouldUseOpenAIRewrite(input: {
   severity: RoastRequest["severity"];
   safeContext: string;
-}) {
-  const rewriteEnabled = process.env.OPENAI_REWRITE_ENABLED !== "false";
-  const minSeverity =
-    (process.env.OPENAI_REWRITE_MIN_SEVERITY as RoastRequest["severity"] | undefined) ??
-    "savage";
-  const requireContext = process.env.OPENAI_REWRITE_REQUIRE_CONTEXT !== "false";
+}, config: RoastServiceConfig) {
+  const rewriteEnabled = config.OPENAI_REWRITE_ENABLED;
+  const minSeverity = config.OPENAI_REWRITE_MIN_SEVERITY;
+  const requireContext = config.OPENAI_REWRITE_REQUIRE_CONTEXT;
 
   if (!rewriteEnabled) {
     return false;
@@ -116,8 +127,12 @@ function shouldUseOpenAIRewrite(input: {
 export async function buildRoast(
   input: RoastRequest,
   dependencies: RoastServiceDependencies = defaultDependencies,
+  config: RoastServiceConfig,
 ): Promise<RoastResult> {
-  const isFlagged = await dependencies.moderateTargetInput(input.subject);
+  const openAIConfig: OpenAIServiceConfig = config;
+  const isFlagged = await dependencies.moderateTargetInput(input.subject, {
+    config: openAIConfig,
+  });
 
   if (isFlagged) {
     return {
@@ -128,7 +143,9 @@ export async function buildRoast(
     };
   }
 
-  const resolution = await dependencies.resolveTargetResolution(input.subject);
+  const resolution = await dependencies.resolveTargetResolution(input.subject, {
+    config: openAIConfig,
+  });
 
   if (resolution.candidates.length > 0) {
     return {
@@ -141,7 +158,9 @@ export async function buildRoast(
 
   const resolvedSubject = resolution.resolvedTarget ?? input.subject;
 
-  const classification = await dependencies.classifyKpopTarget(resolvedSubject);
+  const classification = await dependencies.classifyKpopTarget(resolvedSubject, {
+    config: openAIConfig,
+  });
 
   if (!classification.isKpopRelated) {
     return {
@@ -162,7 +181,7 @@ export async function buildRoast(
     !shouldUseOpenAIRewrite({
       severity: input.severity,
       safeContext: classification.safeContext,
-    })
+    }, config)
   ) {
     return {
       kind: "roast",
@@ -175,6 +194,8 @@ export async function buildRoast(
   const result = await dependencies.rewriteRoastWithOpenAI({
     subject: resolvedSubject,
     draftRoast,
+  }, {
+    config: openAIConfig,
   });
 
   return {

@@ -1,16 +1,25 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import type { ApiConfig } from "../env.js";
 
 let client: OpenAIResponsesClient | null = null;
 
-export function getOpenAIClient() {
-  if (!process.env.OPENAI_API_KEY) {
+export type OpenAIServiceConfig = Pick<
+  ApiConfig,
+  | "OPENAI_API_KEY"
+  | "OPENAI_MODEL"
+  | "OPENAI_CONTEXT_MODEL"
+  | "OPENAI_MODERATION_MODEL"
+>;
+
+export function getOpenAIClient(config: OpenAIServiceConfig) {
+  if (!config.OPENAI_API_KEY) {
     return null;
   }
 
   client ??= new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: config.OPENAI_API_KEY,
   }) as unknown as OpenAIResponsesClient;
 
   return client;
@@ -73,6 +82,7 @@ type OpenAIResponsesClient = {
 
 type RewriteRoastOptions = {
   client?: OpenAIResponsesClient | null;
+  config: OpenAIServiceConfig;
 };
 
 const roastRewriteInstruction =
@@ -118,6 +128,7 @@ export type ResolvedExplicitTarget = {
 
 type ModerateTargetOptions = {
   client?: OpenAIResponsesClient | null;
+  config: OpenAIServiceConfig;
 };
 
 const knownKpopGroups = new Set([
@@ -458,17 +469,17 @@ function normalizeRewrittenRoast(text: string) {
 
 export async function classifyKpopTarget(
   target: string,
-  options?: RewriteRoastOptions,
+  options: RewriteRoastOptions,
 ): Promise<KpopTargetClassification> {
-  const openAIClient = options?.client ?? getOpenAIClient();
+  const openAIClient = options.client ?? getOpenAIClient(options.config);
 
-  if (!openAIClient?.responses?.parse || !process.env.OPENAI_CONTEXT_MODEL) {
+  if (!openAIClient?.responses?.parse || !options.config.OPENAI_CONTEXT_MODEL) {
     return fallbackKpopClassification(target);
   }
 
   try {
     const response = await openAIClient.responses.parse({
-      model: process.env.OPENAI_CONTEXT_MODEL,
+      model: options.config.OPENAI_CONTEXT_MODEL,
       input: [
         {
           role: "developer",
@@ -500,7 +511,7 @@ export async function classifyKpopTarget(
 
 export async function resolveTargetResolution(
   target: string,
-  options?: RewriteRoastOptions,
+  options: RewriteRoastOptions,
 ): Promise<TargetResolutionResult> {
   const explicitResolution = resolveExplicitTargetContext(target);
   const normalizedTarget = normalizeTargetInput(target);
@@ -524,15 +535,15 @@ export async function resolveTargetResolution(
     };
   }
 
-  const openAIClient = options?.client ?? getOpenAIClient();
+  const openAIClient = options.client ?? getOpenAIClient(options.config);
 
-  if (!openAIClient?.responses?.parse || !process.env.OPENAI_CONTEXT_MODEL) {
+  if (!openAIClient?.responses?.parse || !options.config.OPENAI_CONTEXT_MODEL) {
     return fallbackTargetResolution(target);
   }
 
   try {
     const response = await openAIClient.responses.parse({
-      model: process.env.OPENAI_CONTEXT_MODEL,
+      model: options.config.OPENAI_CONTEXT_MODEL,
       input: [
         {
           role: "developer",
@@ -557,17 +568,17 @@ export async function resolveTargetResolution(
 
 export async function moderateTargetInput(
   target: string,
-  options?: ModerateTargetOptions,
+  options: ModerateTargetOptions,
 ) {
-  const openAIClient = options?.client ?? getOpenAIClient();
+  const openAIClient = options.client ?? getOpenAIClient(options.config);
 
-  if (!openAIClient?.moderations?.create || !process.env.OPENAI_MODERATION_MODEL) {
+  if (!openAIClient?.moderations?.create || !options.config.OPENAI_MODERATION_MODEL) {
     return false;
   }
 
   try {
     const response = await openAIClient.moderations.create({
-      model: process.env.OPENAI_MODERATION_MODEL,
+      model: options.config.OPENAI_MODERATION_MODEL,
       input: target,
     });
 
@@ -579,11 +590,11 @@ export async function moderateTargetInput(
 
 export async function rewriteRoastWithOpenAI(
   input: RewriteRoastInput,
-  options?: RewriteRoastOptions,
+  options: RewriteRoastOptions,
 ): Promise<RewriteRoastResult> {
-  const openAIClient = options?.client ?? getOpenAIClient();
+  const openAIClient = options.client ?? getOpenAIClient(options.config);
 
-  if (!openAIClient?.responses?.create || !process.env.OPENAI_MODEL) {
+  if (!openAIClient?.responses?.create || !options.config.OPENAI_MODEL) {
     return {
       roast: input.draftRoast,
       source: "local",
@@ -593,7 +604,7 @@ export async function rewriteRoastWithOpenAI(
 
   try {
     const response = await openAIClient.responses.create({
-      model: process.env.OPENAI_MODEL,
+      model: options.config.OPENAI_MODEL,
       input: [
         {
           role: "developer",

@@ -19,18 +19,18 @@ const examples = [
 
 export function SubjectField({ error, value, onChange }: SubjectFieldProps) {
   return (
-    <label className="grid gap-3">
+    <label className="grid gap-2.5 sm:gap-3">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[1.1rem] font-semibold tracking-[-0.03em] text-[#171117] sm:text-[1.2rem]">
+        <span className="text-[1rem] font-semibold tracking-[-0.03em] text-[#171117] sm:text-[1.2rem]">
           3. Who&apos;s on stage tonight?
         </span>
-        <span className="text-sm font-medium text-[#8a8390]">
+        <span className="text-[0.82rem] font-medium text-[#8a8390] sm:text-sm">
           {value.length}/{MAX_SUBJECT_LENGTH}
         </span>
       </div>
 
       <input
-        className={`min-h-14 rounded-[999px] border bg-[#fafafa] px-6 py-3 text-[1rem] text-[#25111c] outline-none transition-shadow placeholder:text-[#aeabb5] ${
+        className={`min-h-13 rounded-[999px] border bg-[#fafafa] px-5 py-3 text-[0.96rem] text-[#25111c] outline-none transition-shadow placeholder:text-[#aeabb5] sm:min-h-14 sm:px-6 sm:text-[1rem] ${
           error
             ? "border-[#d25a7a] shadow-[0_0_0_4px_rgba(210,90,122,0.12)]"
             : "border-[#eeeeee] shadow-[0_6px_18px_rgba(0,0,0,0.03)] focus:shadow-[0_0_0_4px_rgba(92,59,76,0.12)]"
@@ -41,11 +41,11 @@ export function SubjectField({ error, value, onChange }: SubjectFieldProps) {
         value={value}
       />
 
-      <div className="flex flex-wrap gap-2.5">
+      <div className="flex flex-wrap gap-2">
         {examples.map((example) => (
           <button
             key={example}
-            className="rounded-full border border-transparent bg-[#f4f4f4] px-4 py-2 text-[14px] font-medium text-[#68626b] shadow-none"
+            className="rounded-full border border-transparent bg-[#f4f4f4] px-3.5 py-2 text-[13px] font-medium text-[#68626b] shadow-none sm:px-4 sm:text-[14px]"
             onClick={() => onChange(example)}
             type="button"
           >

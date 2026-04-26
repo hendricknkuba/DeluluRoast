@@ -182,12 +182,76 @@ const ambiguousTargetCandidates: Record<string, AmbiguousTargetCandidate[]> = {
   ],
 };
 
+const factualContextPatterns = [
+  /\bis\s+(a|an|the)\b/i,
+  /\bare\s+(a|an|the)\b/i,
+  /\bformed by\b/i,
+  /\bmember of\b/i,
+  /\bmember\b/i,
+  /\bsouth korean\b/i,
+  /\bboy group\b/i,
+  /\bgirl group\b/i,
+  /\bentertainment\b/i,
+  /\bdebut(?:ed)?\b/i,
+  /\bsinger\b/i,
+  /\brapper\b/i,
+  /\bactor\b/i,
+  /\bsoloist\b/i,
+  /\bband\b/i,
+];
+
 export function normalizeTargetInput(target: string) {
   return target.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
 function normalizeTargetDisplay(target: string) {
   return target.trim().replace(/\s+/g, " ");
+}
+
+export function sanitizeSafeContext(target: string, safeContext: string) {
+  const normalizedContext = safeContext.trim().replace(/\s+/g, " ");
+
+  if (!normalizedContext) {
+    return "";
+  }
+
+  const targetPattern = new RegExp(
+    `\\b${normalizeTargetInput(target).replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+")}\\b`,
+    "i",
+  );
+  const segments = normalizedContext
+    .split(/[;,]/)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  const roastUsableSegment = segments.find((segment) => {
+    if (segment.length > 48) {
+      return false;
+    }
+
+    if (targetPattern.test(segment)) {
+      return false;
+    }
+
+    return !factualContextPatterns.some((pattern) => pattern.test(segment));
+  });
+
+  if (roastUsableSegment) {
+    return roastUsableSegment.replace(/[.?!]+$/g, "");
+  }
+
+  if (
+    normalizedContext.length > 64 ||
+    factualContextPatterns.some((pattern) => pattern.test(normalizedContext))
+  ) {
+    return "";
+  }
+
+  if (targetPattern.test(normalizedContext)) {
+    return "";
+  }
+
+  return normalizedContext.replace(/[.?!]+$/g, "");
 }
 
 function toTitleCase(value: string) {
@@ -409,7 +473,7 @@ export async function classifyKpopTarget(
         {
           role: "developer",
           content:
-            "Classify whether the target is related to K-pop. Return only the structured result. safeContext must be short and non-sensitive.",
+            "Classify whether the target is related to K-pop. Return only the structured result. safeContext must be a short fandom-angle phrase, not biography text. Good examples: golden maknae image, leader energy, noise music discourse, duality edits. Bad examples: South Korean boy group formed by JYP Entertainment, member of BTS, soloist under company X.",
         },
         {
           role: "user",
@@ -421,8 +485,13 @@ export async function classifyKpopTarget(
       },
     });
 
-    return (response.output_parsed as KpopTargetClassification | null) ?? {
-      ...fallbackKpopClassification(target),
+    const parsed =
+      (response.output_parsed as KpopTargetClassification | null) ??
+      fallbackKpopClassification(target);
+
+    return {
+      ...parsed,
+      safeContext: sanitizeSafeContext(target, parsed.safeContext),
     };
   } catch {
     return fallbackKpopClassification(target);

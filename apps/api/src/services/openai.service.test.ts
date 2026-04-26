@@ -7,6 +7,7 @@ import {
   resolveExplicitTargetContext,
   resolveTargetResolution,
   rewriteRoastWithOpenAI,
+  sanitizeSafeContext,
 } from "./openai.service.js";
 
 test("rewriteRoastWithOpenAI falls back to the local draft when OpenAI is unavailable", async () => {
@@ -215,6 +216,58 @@ test("classifyKpopTarget uses the local K-pop fallback when OpenAI is unavailabl
 
   if (originalModel) {
     process.env.OPENAI_MODEL = originalModel;
+  }
+});
+
+test("sanitizeSafeContext removes factual artist bio text", () => {
+  assert.equal(
+    sanitizeSafeContext(
+      "Stray Kids",
+      "Stray Kids is a South Korean boy group formed by JYP Entertainment.",
+    ),
+    "",
+  );
+});
+
+test("sanitizeSafeContext keeps short fandom-angle phrases", () => {
+  assert.equal(
+    sanitizeSafeContext(
+      "Jungkook",
+      "BTS member, soloist, golden maknae image",
+    ),
+    "golden maknae image",
+  );
+});
+
+test("classifyKpopTarget strips bio-style safeContext from model output", async () => {
+  const originalModel = process.env.OPENAI_CONTEXT_MODEL;
+  process.env.OPENAI_CONTEXT_MODEL = "gpt-4.1-mini";
+
+  const result = await classifyKpopTarget("Stray Kids", {
+    client: {
+      responses: {
+        parse: async () => ({
+          output_parsed: {
+            isKpopRelated: true,
+            entityType: "group",
+            safeContext:
+              "Stray Kids is a South Korean boy group formed by JYP Entertainment.",
+          },
+        }),
+      },
+    },
+  });
+
+  assert.deepEqual(result, {
+    isKpopRelated: true,
+    entityType: "group",
+    safeContext: "",
+  });
+
+  if (originalModel) {
+    process.env.OPENAI_CONTEXT_MODEL = originalModel;
+  } else {
+    delete process.env.OPENAI_CONTEXT_MODEL;
   }
 });
 

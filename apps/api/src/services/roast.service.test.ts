@@ -45,6 +45,17 @@ test("buildLocalRoast uses safeContext to make the draft more specific", () => {
   assert.match(roast, /not helping your case|made this even more dramatic|look normal/);
 });
 
+test("buildLocalRoast does not inject factual artist bio text into the roast", () => {
+  const roast = buildLocalRoast({
+    mode: "bias",
+    severity: "savage",
+    subject: "Stray Kids",
+    safeContext: "",
+  });
+
+  assert.doesNotMatch(roast, /South Korean boy group|JYP Entertainment|formed by/i);
+});
+
 test("buildRoast falls back to the local roast when OpenAI is unavailable", async () => {
   const originalApiKey = process.env.OPENAI_API_KEY;
   const originalModel = process.env.OPENAI_MODEL;

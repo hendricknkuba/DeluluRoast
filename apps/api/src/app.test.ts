@@ -11,7 +11,7 @@ const testEnv = {
   OPENAI_REWRITE_ENABLED: true,
   OPENAI_REWRITE_MIN_SEVERITY: "savage" as const,
   OPENAI_REWRITE_REQUIRE_CONTEXT: true,
-  ALLOWED_ORIGIN: "http://localhost:5173",
+  ALLOWED_ORIGINS: "http://localhost:5173,https://www.deluluroast.com",
   PORT: 3001,
   RATE_LIMIT_MAX: 20,
   RATE_LIMIT_WINDOW_MS: 60_000,
@@ -27,6 +27,31 @@ test("createApp wires routes using parsed env config", async () => {
 
   assert.equal(response.statusCode, 200);
   assert.deepEqual(response.json(), { ok: true });
+
+  await app.close();
+});
+
+test("createApp allows configured origins without combining them", async () => {
+  const app = await createApp(testEnv);
+
+  const response = await app.inject({
+    method: "OPTIONS",
+    url: "/roasts/generate",
+    headers: {
+      origin: "https://www.deluluroast.com",
+      "access-control-request-method": "POST",
+    },
+  });
+
+  assert.equal(response.statusCode, 204);
+  assert.equal(
+    response.headers["access-control-allow-origin"],
+    "https://www.deluluroast.com",
+  );
+  assert.equal(
+    response.headers["access-control-allow-origin"]?.includes(","),
+    false,
+  );
 
   await app.close();
 });

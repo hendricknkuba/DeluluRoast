@@ -1,7 +1,7 @@
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import Fastify from "fastify";
-import { resolveCorsOrigin, type ApiEnv } from "./env.js";
+import { resolveCorsOrigins, type ApiEnv } from "./env.js";
 import { errorResponse } from "./lib/api-response.js";
 import { sanitizeErrorForLog } from "./lib/log-sanitizer.js";
 import { registerHealthRoute } from "./routes/health.route.js";
@@ -27,7 +27,7 @@ export async function createApp(env: ApiEnv, options?: CreateAppOptions) {
   const app = Fastify({ logger: true });
 
   await app.register(cors, {
-    origin: resolveCorsOrigin(env),
+    origin: resolveCorsOrigins(env),
   });
 
   await app.register(rateLimit, {

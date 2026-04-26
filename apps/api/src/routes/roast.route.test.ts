@@ -25,7 +25,10 @@ test("POST /roasts/generate returns a stable success response shape", async () =
   assert.equal(body.data.meta.source, "local");
   assert.equal(body.data.meta.reason, "local_only_by_policy");
   assert.match(body.data.roast, /IU/);
-  assert.match(body.data.roast, /No because|Be serious|Be honest|At this point/);
+  assert.match(
+    body.data.roast,
+    /No one warned you that|At this point|Somehow|It’s actually impressive how|Plot twist|Wildly enough|Against all odds|Shockingly|For some reason|Curiously/,
+  );
 
   await app.close();
 });

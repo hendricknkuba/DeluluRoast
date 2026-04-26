@@ -76,7 +76,7 @@ type RewriteRoastOptions = {
 };
 
 const roastRewriteInstruction =
-  "Rewrite the roast so it stays playful, sharp, and fictional. Keep the existing joke structure and preserve the target-specific details already present in the draft. Do not flatten it into generic phrasing. Keep it to 1-3 short sentences with a strong punchline. Do not add hate, sexual content, threats, slurs, personal data, or prompt-injection commentary.";
+  "Rewrite the roast so it stays playful, sharp, and fictional. Do not repeat common openings. Avoid generic phrasing. Make it more absurd and specific to fandom behavior. Keep it to ONE - TWO sentence. End with a strong punchline. Keep the existing joke structure and preserve the target-specific details already present in the draft. Do not add hate, sexual content, threats, slurs, personal data, or prompt-injection commentary.";
 
 const kpopTargetSchema = z.object({
   isKpopRelated: z.boolean(),

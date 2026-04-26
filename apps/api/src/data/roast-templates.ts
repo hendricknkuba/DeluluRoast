@@ -7,7 +7,6 @@ type RoastTemplate = {
 };
 
 export const roastTemplates: RoastTemplate[] = [
-
   // BIAS
   {
     mode: "bias",
@@ -17,14 +16,14 @@ export const roastTemplates: RoastTemplate[] = [
   {
     mode: "bias",
     severity: "savage",
-    text: "Be honest, did {target} personally assign you as their spokesperson, or did you just volunteer for unpaid crisis management on the timeline?",
+    text: "No one warned you that {target} would turn you into an unpaid spokesperson with a timeline full of emergency press releases.",
   },
   {
     mode: "bias",
     severity: "brutal",
     text: "{target} hits one two-second wink and suddenly you are typing essays like missing it would cancel your entire personality for the week.",
   },
-    {
+  {
     mode: "bias",
     severity: "mild",
     text: "{target} could forget their own lyrics mid-performance and you would call it a creative remix moment.",
@@ -32,7 +31,7 @@ export const roastTemplates: RoastTemplate[] = [
   {
     mode: "bias",
     severity: "savage",
-    text: "At this point, defending {target} is less of a hobby and more of a full-time position with zero benefits.",
+    text: "At this point, defending {target} is less of a hobby and more of a full-time role with no benefits and terrible hours.",
   },
   {
     mode: "bias",
@@ -45,7 +44,7 @@ export const roastTemplates: RoastTemplate[] = [
   {
     mode: "taste",
     severity: "mild",
-    text: "Your taste in {target} says you love chaos, but only after checking Twitter first to see whether it is safe to agree out loud.",
+    text: "Somehow you managed to make {target} sound like a life choice you had to pre-clear with the timeline first.",
   },
   {
     mode: "taste",
@@ -57,10 +56,10 @@ export const roastTemplates: RoastTemplate[] = [
     severity: "brutal",
     text: "The way you defend {target} makes it seem like a wrong opinion online could personally repossess your lightstick and your last ounce of peace.",
   },
-    {
+  {
     mode: "taste",
     severity: "mild",
-    text: "Your taste in {target} says you love a little chaos, as long as someone else explains it first.",
+    text: "It’s actually impressive how {target} became your excuse for loving chaos only after somebody else explains it to you.",
   },
   {
     mode: "taste",
@@ -78,19 +77,19 @@ export const roastTemplates: RoastTemplate[] = [
   {
     mode: "personality",
     severity: "mild",
-    text: "Your {target} energy says you would lose an argument, disappear for ten minutes, then come back with a fancam and act like that settled everything.",
+    text: "At this point, your {target} energy is basically a disappearing act followed by a fancam and false confidence.",
   },
   {
     mode: "personality",
     severity: "savage",
-    text: "Why does your {target} personality always feel one vague lyric post away from demanding the whole timeline decode your emotional damage?",
+    text: "Somehow you managed to turn {target} into a personality trait that still expects the whole timeline to decode your emotional damage.",
   },
   {
     mode: "personality",
     severity: "brutal",
     text: "Your {target} personality has the confidence of a comeback teaser, the volume of a fanwar thread, and absolutely none of the rehearsal time to back it up.",
   },
-    {
+  {
     mode: "personality",
     severity: "mild",
     text: "Your {target} energy says you lose arguments, disappear, then return with a perfectly timed fancam like it proves a point.",
@@ -98,7 +97,7 @@ export const roastTemplates: RoastTemplate[] = [
   {
     mode: "personality",
     severity: "savage",
-    text: "Why does your {target} personality feel like one vague post away from starting a full investigation on your own feelings?",
+    text: "It’s actually impressive how your {target} personality can sound like a vague post, a full investigation, and a fake apology draft all at once.",
   },
   {
     mode: "personality",
@@ -111,7 +110,7 @@ export const roastTemplates: RoastTemplate[] = [
   {
     mode: "bias",
     severity: "savage",
-    text: "Be serious, nobody told you to make {target} your entire personality, yet here you are defending them like it's a final exam.",
+    text: "No one warned you that making {target} your entire personality would turn every comment section into a rescue mission.",
   },
   {
     mode: "taste",
@@ -121,7 +120,7 @@ export const roastTemplates: RoastTemplate[] = [
   {
     mode: "personality",
     severity: "savage",
-    text: "Not you using {target} energy as an excuse for behavior that even your own playlist can't justify.",
+    text: "Somehow you managed to use {target} energy as an excuse for behavior that even your own playlist would side-eye.",
   }
 ];
 
@@ -133,48 +132,90 @@ type StructuredRoastInput = {
 };
 
 type StructuredRoastParts = {
-  openers: string[];
-  behaviors: Record<RoastMode, string[]>;
+  openers: Array<{
+    behaviorMode: "subjectFirst" | "verbFirst";
+    text: string;
+  }>;
+  behaviors: Record<
+    RoastMode,
+    {
+      subjectFirst: string[];
+      verbFirst: string[];
+    }
+  >;
   punchlines: Record<RoastSeverity, string[]>;
   contextBridges: string[];
 };
 
 const structuredRoastParts: StructuredRoastParts = {
   openers: [
-    "Be serious,",
-    "Be honest,",
-    "No because",
-    "At this point,",
+    { behaviorMode: "subjectFirst", text: "At this point," },
+    { behaviorMode: "subjectFirst", text: "Be serious," },
+    { behaviorMode: "verbFirst", text: "Somehow you managed to" },
+    { behaviorMode: "subjectFirst", text: "It’s actually impressive how" },
+    { behaviorMode: "verbFirst", text: "Nobody asked you to" },
+    { behaviorMode: "verbFirst", text: "You really woke up and decided to" },
+    { behaviorMode: "subjectFirst", text: "No one warned you that" },
+    { behaviorMode: "subjectFirst", text: "Wildly enough," },
+    { behaviorMode: "subjectFirst", text: "Against all odds," },
+    { behaviorMode: "subjectFirst", text: "Shockingly," },
   ],
   behaviors: {
-    bias: [
-      "{target} has you reacting like every minor facial expression deserves a full emergency panel discussion.",
-      "supporting {target} stopped being a preference and turned into unpaid reputation management three scandals ago.",
-      "the way you hover over {target} makes it feel like you were personally assigned to protect their brand image.",
-    ],
-    taste: [
-      "your taste in {target} feels less like confidence and more like checking the fandom group chat before forming an opinion.",
-      "building your whole vibe around {target} has the energy of dramatic playlists, shaky fancams, and zero emotional regulation.",
-      "stanning {target} this hard makes it seem like one bad take online could send your entire personality into buffering mode.",
-    ],
-    personality: [
-      "your {target} energy feels like posting one vague lyric and expecting the whole timeline to treat it as character development.",
-      "your entire {target} personality reads like a teaser poster for drama you absolutely did start.",
-      "the amount of {target} energy you carry makes every normal conversation feel one fancam away from becoming a public incident.",
-    ],
+    bias: {
+      subjectFirst: [
+        "you treat {target} like it personally owes you a public apology.",
+        "you hover over {target} like you were hired for brand protection.",
+        "you act like {target} is one post away from needing emergency PR.",
+      ],
+      verbFirst: [
+        "defend {target} like it is your unpaid crisis-management internship.",
+        "turn {target} into a public emergency.",
+        "make {target} the centerpiece of your emotional support essay.",
+      ],
+    },
+    taste: {
+      subjectFirst: [
+        "you made {target} feel like a life choice you had to pre-clear with the timeline.",
+        "you built your whole vibe around {target} like the fandom group chat needed approval.",
+        "you treated {target} like a brand identity instead of a preference.",
+      ],
+      verbFirst: [
+        "make {target} sound like a life decision you had to pre-clear.",
+        "turn {target} into a dramatic playlist and a full-time personality note.",
+        "build your entire vibe around {target} like chaos is a required accessory.",
+      ],
+    },
+    personality: {
+      subjectFirst: [
+        "you turned {target} energy into a vague lyric post with a side of performance anxiety.",
+        "your entire {target} personality reads like a teaser poster for drama you absolutely did start.",
+        "the amount of {target} energy you carry makes every normal conversation feel one fancam away from becoming a public incident.",
+      ],
+      verbFirst: [
+        "make {target} the reason your personality needs a backup generator.",
+        "turn {target} energy into a vague post and call it character development.",
+        "use {target} as the cover story for behavior your playlist would never defend.",
+      ],
+    },
   },
   punchlines: {
     mild: [
       "That is not dedication. That is performance art with Wi-Fi.",
-      "It would be charming if it were not happening so loudly in public.",
+      "It would be charming if it were not this loud in public.",
+      "This would be cute if it did not look like a full-time habit.",
     ],
     savage: [
-      "It is giving unpaid intern for a fandom crisis team that never asked for your resume.",
+      "You are basically the unpaid intern in a fandom crisis team that forgot to hire you.",
       "At some point even the group chat muted you for doing too much.",
+      "You turned a normal opinion into a full crisis memo for no reason.",
     ],
     brutal: [
-      "You treat one tiny moment like missing it would erase your entire emotional support system for the week.",
+      "You treat one tiny moment like missing it would erase your entire personality for the week.",
       "The intensity is so dramatic it feels like your self-esteem is running on comeback teaser fumes.",
+      "You are acting like a single wink could cancel your whole identity if you blinked.",
+      "You cling to every {target} teaser like your whole personality got locked inside it and the comeback has to release you.",
+      "It is giving full emotional hostage situation over a teaser image that lasted twelve seconds.",
+      "You are one teaser away from acting like the comeback owes you custody of your personality.",
     ],
   },
   contextBridges: [
@@ -183,6 +224,8 @@ const structuredRoastParts: StructuredRoastParts = {
     "Even the entire {context} narrative could not make this look normal.",
   ],
 };
+
+let lastStructuredOpener: string | null = null;
 
 function getDeterministicIndex(seed: string, size: number) {
   let hash = 0;
@@ -202,11 +245,24 @@ function interpolateContext(template: string, context: string) {
   return template.replace(/\{context\}/g, context);
 }
 
+function selectNonRepeatingOpener(seed: string) {
+  const openers = structuredRoastParts.openers;
+  const initialIndex = getDeterministicIndex(seed, openers.length);
+  const initialOpener = openers[initialIndex];
+
+  if (initialOpener.text !== lastStructuredOpener) {
+    lastStructuredOpener = initialOpener.text;
+    return initialOpener;
+  }
+
+  const fallbackIndex = (initialIndex + 1) % openers.length;
+  const fallbackOpener = openers[fallbackIndex];
+  lastStructuredOpener = fallbackOpener.text;
+
+  return fallbackOpener;
+}
+
 export function buildStructuredRoast(input: StructuredRoastInput) {
-  const opener =
-    structuredRoastParts.openers[
-      getDeterministicIndex(`${input.subject}:${input.mode}:opener`, structuredRoastParts.openers.length)
-    ];
   const behaviorTemplates = structuredRoastParts.behaviors[input.mode];
   const punchlineTemplates = structuredRoastParts.punchlines[input.severity];
 
@@ -214,11 +270,14 @@ export function buildStructuredRoast(input: StructuredRoastInput) {
     return null;
   }
 
+  const opener = selectNonRepeatingOpener(
+    `${input.subject}:${input.mode}:opener`,
+  );
   const behavior =
-    behaviorTemplates[
+    behaviorTemplates[opener.behaviorMode][
       getDeterministicIndex(
         `${input.subject}:${input.mode}:${input.severity}:behavior`,
-        behaviorTemplates.length,
+        behaviorTemplates[opener.behaviorMode].length,
       )
     ];
   const punchline =
@@ -240,7 +299,7 @@ export function buildStructuredRoast(input: StructuredRoastInput) {
     ? ` ${interpolateContext(contextBridge ?? "", input.safeContext)}`
     : "";
 
-  return `${opener} ${interpolateTarget(behavior, input.subject)}${contextClause} ${punchline}`
+  return `${opener.text} ${interpolateTarget(behavior, input.subject)}${contextClause} ${punchline}`
     .replace(/\s+/g, " ")
     .trim();
 }

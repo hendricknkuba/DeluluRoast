@@ -15,7 +15,7 @@ test("buildLocalRoast injects the subject into the matching template", () => {
   });
 
   assert.match(roast, /TXT/);
-  assert.match(roast, /performance art with Wi-Fi|charming if it were not happening/);
+  assert.match(roast, /Nobody asked you to|It would be charming if it were not this loud in public/);
 });
 
 test("buildLocalRoast returns a fallback when no template exists", () => {
@@ -62,7 +62,10 @@ test("buildRoast falls back to the local roast when OpenAI is unavailable", asyn
 
   if (roast.kind === "roast") {
     assert.match(roast.roast, /TXT/);
-    assert.match(roast.roast, /buffering mode|group chat|dramatic playlists/);
+    assert.match(
+      roast.roast,
+      /At this point|Be serious|Somehow you managed to|It’s actually impressive how|Nobody asked you to|You really woke up and decided to|No one warned you that/,
+    );
     assert.equal(roast.source, "local");
     assert.equal(roast.reason, "local_only_by_policy");
   }

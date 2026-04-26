@@ -41,7 +41,11 @@ This file describes the current backend roast flow.
 
 7. If the target passes:
    - backend builds a local roast from templates
-   - then tries to enhance it with OpenAI
+   - backend only attempts OpenAI rewrite if the cost gate passes:
+     - rewrite enabled
+     - severity meets `OPENAI_REWRITE_MIN_SEVERITY`
+     - `safeContext` exists when `OPENAI_REWRITE_REQUIRE_CONTEXT=true`
+   - otherwise it returns local output directly
 
 ## Fallback Levels
 
@@ -50,16 +54,36 @@ This file describes the current backend roast flow.
   - meta reason: `enhanced`
 
 - Good:
-  - local template + partial AI support such as local classifier fallback
-  - if rewrite is unavailable or rejected, local roast still returns
+  - local template + partial AI support such as classifier/context help
+  - OpenAI can still fall back after an attempted rewrite
+  - meta reason:
+    - `fallback_error`
+    - `fallback_rejected_output`
 
 - Safe:
-  - local-only roast or safe blocked message
+  - local-only roast by policy or safe blocked message
   - meta reason:
-    - `fallback_local`
+    - `local_only_by_policy`
     - `blocked_moderation`
     - `blocked_non_kpop`
     - `needs_disambiguation`
+
+## Current Meta Reasons
+
+- `enhanced`
+  - OpenAI rewrite succeeded and was used.
+- `fallback_error`
+  - OpenAI rewrite was attempted but the API call failed.
+- `fallback_rejected_output`
+  - OpenAI rewrite was attempted but the output was rejected as unsafe or too generic.
+- `local_only_by_policy`
+  - Backend intentionally skipped OpenAI due to rewrite policy or unavailable rewrite configuration.
+- `blocked_moderation`
+  - Input was blocked by moderation.
+- `blocked_non_kpop`
+  - Target was classified as non-K-pop.
+- `needs_disambiguation`
+  - Target is ambiguous and the API returned options instead of a roast.
 
 ## API Success Shapes
 
@@ -72,7 +96,7 @@ This file describes the current backend roast flow.
     "roast": "...",
     "meta": {
       "source": "local",
-      "reason": "fallback_local"
+      "reason": "local_only_by_policy"
     }
   }
 }

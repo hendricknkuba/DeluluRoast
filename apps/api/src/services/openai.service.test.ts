@@ -112,7 +112,7 @@ test("rewriteRoastWithOpenAI tells the model to preserve structure and specific 
   assert.match(capturedParams.input[0].content, /Do not repeat common openings/);
   assert.match(capturedParams.input[0].content, /Avoid generic phrasing/);
   assert.match(capturedParams.input[0].content, /Make it more absurd and specific to fandom behavior/);
-  assert.match(capturedParams.input[0].content, /Keep it to ONE sentence/);
+  assert.match(capturedParams.input[0].content, /Keep it to ONE - TWO sentence/);
   assert.match(capturedParams.input[0].content, /End with a strong punchline/);
   assert.match(capturedParams.input[0].content, /Keep the existing joke structure/);
   assert.match(capturedParams.input[1].content, /golden maknae image angle/);

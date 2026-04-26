@@ -83,7 +83,7 @@ export function RoastComposer({
 
   return (
     <form
-      className="grid max-w-[41rem] gap-5 rounded-[32px] border border-[#f0f0f0] bg-[#ffffff] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:p-6 lg:min-h-[35rem] lg:p-7"
+      className="grid max-w-[41rem] gap-4 rounded-[28px] border border-[#f0f0f0] bg-[#ffffff] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:gap-5 sm:rounded-[32px] sm:p-6 lg:min-h-[35rem] lg:p-7"
       onSubmit={onSubmit}
     >
       <OptionPillGroup
@@ -133,7 +133,7 @@ export function RoastComposer({
       />
 
       <button
-        className="mt-1 min-h-14 rounded-[20px] bg-[linear-gradient(90deg,#6d5dfc_0%,#a78bfa_100%)] px-5 py-3 text-[1.05rem] font-semibold text-white opacity-90 shadow-[0_16px_28px_rgba(109,93,252,0.18)] transition-transform duration-150 hover:-translate-y-0.5 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 min-h-13 rounded-[18px] bg-[linear-gradient(90deg,#6d5dfc_0%,#a78bfa_100%)] px-4 py-3 text-[0.98rem] font-semibold text-white opacity-90 shadow-[0_16px_28px_rgba(109,93,252,0.18)] transition-transform duration-150 hover:-translate-y-0.5 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-14 sm:rounded-[20px] sm:px-5 sm:text-[1.05rem]"
         disabled={isLoading}
         type="submit"
       >

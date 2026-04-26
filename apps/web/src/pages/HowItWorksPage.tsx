@@ -25,7 +25,7 @@ const steps = [
 
 export function HowItWorksPage() {
   return (
-    <RoastShell currentPage="how-it-works">
+    <RoastShell>
       <div className="grid gap-5 px-2 pb-2 pt-1 sm:px-4 lg:gap-6 lg:px-8">
         <section className="grid gap-3 rounded-[28px] border border-[#f0f0f0] bg-[#ffffff] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:p-6">
           <span className="w-fit rounded-full bg-[linear-gradient(180deg,#f5ecff,#f1e7ff)] px-4 py-2 text-[0.74rem] font-semibold uppercase tracking-[0.02em] text-[#8d65ea] sm:text-[0.86rem]">

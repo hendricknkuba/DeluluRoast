@@ -58,10 +58,14 @@ test("buildRoast falls back to the local roast when OpenAI is unavailable", asyn
     subject: "TXT",
   });
 
-  assert.match(roast.roast, /TXT/);
-  assert.match(roast.roast, /buffering mode|group chat|dramatic playlists/);
-  assert.equal(roast.source, "local");
-  assert.equal(roast.reason, "local_only_by_policy");
+  assert.equal(roast.kind, "roast");
+
+  if (roast.kind === "roast") {
+    assert.match(roast.roast, /TXT/);
+    assert.match(roast.roast, /buffering mode|group chat|dramatic playlists/);
+    assert.equal(roast.source, "local");
+    assert.equal(roast.reason, "local_only_by_policy");
+  }
 
   if (originalApiKey) {
     process.env.OPENAI_API_KEY = originalApiKey;
@@ -79,8 +83,12 @@ test("buildRoast returns the stage-only message for non-K-pop targets", async ()
     subject: "Cristiano Ronaldo",
   });
 
-  assert.equal(roast.roast, NON_KPOP_TARGET_MESSAGE);
-  assert.equal(roast.reason, "blocked_non_kpop");
+  assert.equal(roast.kind, "roast");
+
+  if (roast.kind === "roast") {
+    assert.equal(roast.roast, NON_KPOP_TARGET_MESSAGE);
+    assert.equal(roast.reason, "blocked_non_kpop");
+  }
 });
 
 test("buildRoast blocks flagged targets before classification", async () => {
@@ -105,12 +113,17 @@ test("buildRoast blocks flagged targets before classification", async () => {
       rewriteRoastWithOpenAI: async () => ({
         roast: "should not reach rewrite",
         source: "openai",
+        reason: "enhanced",
       }),
     },
   );
 
-  assert.equal(roast.roast, BLOCKED_TARGET_MESSAGE);
-  assert.equal(roast.reason, "blocked_moderation");
+  assert.equal(roast.kind, "roast");
+
+  if (roast.kind === "roast") {
+    assert.equal(roast.roast, BLOCKED_TARGET_MESSAGE);
+    assert.equal(roast.reason, "blocked_moderation");
+  }
 });
 
 test("buildRoast returns disambiguation options for ambiguous names", async () => {

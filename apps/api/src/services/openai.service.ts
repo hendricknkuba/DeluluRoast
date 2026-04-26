@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
-let client: OpenAI | null = null;
+let client: OpenAIResponsesClient | null = null;
 
 export function getOpenAIClient() {
   if (!process.env.OPENAI_API_KEY) {
@@ -11,7 +11,7 @@ export function getOpenAIClient() {
 
   client ??= new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-  });
+  }) as unknown as OpenAIResponsesClient;
 
   return client;
 }
@@ -36,7 +36,7 @@ export type RewriteRoastResult = {
 
 type OpenAIResponsesClient = {
   moderations?: {
-    create: (params: {
+    create?: (params: {
       model: string;
       input: string;
     }) => Promise<{
@@ -45,8 +45,8 @@ type OpenAIResponsesClient = {
       }>;
     }>;
   };
-  responses: {
-    parse: <T>(params: {
+  responses?: {
+    parse?: (params: {
       model: string;
       input: Array<{
         role: "developer" | "user";
@@ -56,9 +56,9 @@ type OpenAIResponsesClient = {
         format: unknown;
       };
     }) => Promise<{
-      output_parsed: T | null;
+      output_parsed: unknown | null;
     }>;
-    create: (params: {
+    create?: (params: {
       model: string;
       input: Array<{
         role: "developer" | "user";
@@ -398,12 +398,12 @@ export async function classifyKpopTarget(
 ): Promise<KpopTargetClassification> {
   const openAIClient = options?.client ?? getOpenAIClient();
 
-  if (!openAIClient || !process.env.OPENAI_CONTEXT_MODEL) {
+  if (!openAIClient?.responses?.parse || !process.env.OPENAI_CONTEXT_MODEL) {
     return fallbackKpopClassification(target);
   }
 
   try {
-    const response = await openAIClient.responses.parse<KpopTargetClassification>({
+    const response = await openAIClient.responses.parse({
       model: process.env.OPENAI_CONTEXT_MODEL,
       input: [
         {
@@ -421,11 +421,9 @@ export async function classifyKpopTarget(
       },
     });
 
-    return (
-      response.output_parsed ?? {
-        ...fallbackKpopClassification(target),
-      }
-    );
+    return (response.output_parsed as KpopTargetClassification | null) ?? {
+      ...fallbackKpopClassification(target),
+    };
   } catch {
     return fallbackKpopClassification(target);
   }
@@ -459,12 +457,12 @@ export async function resolveTargetResolution(
 
   const openAIClient = options?.client ?? getOpenAIClient();
 
-  if (!openAIClient || !process.env.OPENAI_CONTEXT_MODEL) {
+  if (!openAIClient?.responses?.parse || !process.env.OPENAI_CONTEXT_MODEL) {
     return fallbackTargetResolution(target);
   }
 
   try {
-    const response = await openAIClient.responses.parse<TargetResolutionResult>({
+    const response = await openAIClient.responses.parse({
       model: process.env.OPENAI_CONTEXT_MODEL,
       input: [
         {
@@ -482,7 +480,7 @@ export async function resolveTargetResolution(
       },
     });
 
-    return response.output_parsed ?? fallbackTargetResolution(target);
+    return (response.output_parsed as TargetResolutionResult | null) ?? fallbackTargetResolution(target);
   } catch {
     return fallbackTargetResolution(target);
   }
@@ -494,7 +492,7 @@ export async function moderateTargetInput(
 ) {
   const openAIClient = options?.client ?? getOpenAIClient();
 
-  if (!openAIClient?.moderations || !process.env.OPENAI_MODERATION_MODEL) {
+  if (!openAIClient?.moderations?.create || !process.env.OPENAI_MODERATION_MODEL) {
     return false;
   }
 
@@ -516,7 +514,7 @@ export async function rewriteRoastWithOpenAI(
 ): Promise<RewriteRoastResult> {
   const openAIClient = options?.client ?? getOpenAIClient();
 
-  if (!openAIClient || !process.env.OPENAI_MODEL) {
+  if (!openAIClient?.responses?.create || !process.env.OPENAI_MODEL) {
     return {
       roast: input.draftRoast,
       source: "local",

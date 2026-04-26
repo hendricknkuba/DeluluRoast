@@ -2,16 +2,23 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createApp } from "./app.js";
 
+const testEnv = {
+  APP_ENV: "development" as const,
+  OPENAI_API_KEY: "test-key",
+  OPENAI_MODEL: "gpt-4o-mini",
+  OPENAI_CONTEXT_MODEL: "gpt-4.1-mini",
+  OPENAI_MODERATION_MODEL: "omni-moderation-latest",
+  OPENAI_REWRITE_ENABLED: true,
+  OPENAI_REWRITE_MIN_SEVERITY: "savage" as const,
+  OPENAI_REWRITE_REQUIRE_CONTEXT: true,
+  ALLOWED_ORIGIN: "http://localhost:5173",
+  PORT: 3001,
+  RATE_LIMIT_MAX: 20,
+  RATE_LIMIT_WINDOW_MS: 60_000,
+};
+
 test("createApp wires routes using parsed env config", async () => {
-  const app = await createApp({
-    APP_ENV: "development",
-    OPENAI_API_KEY: "test-key",
-    OPENAI_MODEL: "gpt-4o-mini",
-    ALLOWED_ORIGIN: "http://localhost:5173",
-    PORT: 3001,
-    RATE_LIMIT_MAX: 20,
-    RATE_LIMIT_WINDOW_MS: 60_000,
-  });
+  const app = await createApp(testEnv);
 
   const response = await app.inject({
     method: "GET",
@@ -26,15 +33,7 @@ test("createApp wires routes using parsed env config", async () => {
 
 test("createApp applies the rate limit only to roast generation", async () => {
   const app = await createApp(
-    {
-      APP_ENV: "development",
-      OPENAI_API_KEY: "test-key",
-      OPENAI_MODEL: "gpt-4o-mini",
-      ALLOWED_ORIGIN: "http://localhost:5173",
-      PORT: 3001,
-      RATE_LIMIT_MAX: 20,
-      RATE_LIMIT_WINDOW_MS: 60_000,
-    },
+    testEnv,
     {
       rateLimit: {
         max: 1,
@@ -83,15 +82,7 @@ test("createApp applies the rate limit only to roast generation", async () => {
 });
 
 test("createApp hides internal error details behind a generic 500 response", async () => {
-  const app = await createApp({
-    APP_ENV: "development",
-    OPENAI_API_KEY: "test-key",
-    OPENAI_MODEL: "gpt-4o-mini",
-    ALLOWED_ORIGIN: "http://localhost:5173",
-    PORT: 3001,
-    RATE_LIMIT_MAX: 20,
-    RATE_LIMIT_WINDOW_MS: 60_000,
-  });
+  const app = await createApp(testEnv);
 
   app.get("/test-error", async () => {
     throw new Error("database connection failed: postgres://secret-host");

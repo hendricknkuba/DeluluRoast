@@ -7,9 +7,15 @@ function getCurrentPage() {
     return "home" as const;
   }
 
-  return window.location.pathname.startsWith("/how-it-works")
-    ? ("how-it-works" as const)
-    : ("home" as const);
+  if (window.location.pathname.startsWith("/how-it-works")) {
+    return "how-it-works" as const;
+  }
+
+  if (window.location.pathname.startsWith("/examples")) {
+    return "examples" as const;
+  }
+
+  return "home" as const;
 }
 
 export function TopNav() {
@@ -49,9 +55,9 @@ export function TopNav() {
           How it works
         </a>
         <a
-          className={linkClassName}
-          href="/#examples"
-          onClick={(event) => handleNavigate(event, "/#examples")}
+          className={`${linkClassName} ${currentPage === "examples" ? activeLinkClassName : ""}`.trim()}
+          href="/examples"
+          onClick={(event) => handleNavigate(event, "/examples")}
         >
           Examples
         </a>

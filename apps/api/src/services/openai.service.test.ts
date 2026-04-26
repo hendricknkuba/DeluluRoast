@@ -275,6 +275,16 @@ test("resolveTargetResolution resolves unique K-pop names directly", async () =>
   });
 });
 
+test("resolveTargetResolution falls back to a direct resolution for clean inputs", async () => {
+  const result = await resolveTargetResolution("NMIXX");
+
+  assert.deepEqual(result, {
+    isAmbiguous: false,
+    resolvedTarget: "NMIXX",
+    candidates: [],
+  });
+});
+
 test("resolveTargetResolution returns model-backed ambiguity options when available", async () => {
   const originalContextModel = process.env.OPENAI_CONTEXT_MODEL;
   process.env.OPENAI_CONTEXT_MODEL = "gpt-4.1-mini";

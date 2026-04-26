@@ -264,7 +264,6 @@ export function resolveAmbiguousTargetOptions(target: string) {
 
 function fallbackTargetResolution(target: string): TargetResolutionResult {
   const explicitResolution = resolveExplicitTargetContext(target);
-  const normalizedTarget = normalizeTargetInput(target);
 
   if (explicitResolution) {
     return {
@@ -274,20 +273,9 @@ function fallbackTargetResolution(target: string): TargetResolutionResult {
     };
   }
 
-  if (
-    (knownKpopGroups.has(normalizedTarget) || knownKpopIdols.has(normalizedTarget)) &&
-    !ambiguousTargetCandidates[normalizedTarget]
-  ) {
-    return {
-      isAmbiguous: false,
-      resolvedTarget: normalizeTargetDisplay(target),
-      candidates: [],
-    };
-  }
-
   return {
     isAmbiguous: false,
-    resolvedTarget: null,
+    resolvedTarget: normalizeTargetDisplay(target),
     candidates: resolveAmbiguousTargetOptions(target),
   };
 }

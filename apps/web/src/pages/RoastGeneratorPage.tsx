@@ -36,6 +36,8 @@ type RoastViewState =
     };
 
 export function RoastGeneratorPage() {
+  const genericRequestError =
+    "Something went wrong. Please try again later.";
   const [mode, setMode] = useState<RoastMode>("bias");
   const [severity, setSeverity] = useState<RoastSeverity>("mild");
   const [subject, setSubject] = useState("");
@@ -92,9 +94,13 @@ export function RoastGeneratorPage() {
           result.reason === "enhanced" ? "enhanced" : "fallback_local",
       });
     } catch (caughtError) {
-      setRequestError(
-        caughtError instanceof Error ? caughtError.message : "Something went wrong.",
-      );
+      if (caughtError instanceof Error) {
+        console.error("Roast request failed:", caughtError.message);
+      } else {
+        console.error("Roast request failed:", caughtError);
+      }
+
+      setRequestError(genericRequestError);
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +134,7 @@ export function RoastGeneratorPage() {
 
   return (
     <RoastShell>
-      <div className="grid gap-6 px-2 pb-2 pt-1 lg:h-full lg:grid-cols-[minmax(0,1.08fr)_minmax(620px,0.92fr)] lg:items-stretch lg:gap-8 lg:px-8 lg:pb-0 lg:pt-0">
+      <div className="grid gap-5 px-1 pb-1 pt-1 lg:h-full lg:grid-cols-[minmax(0,1.08fr)_minmax(620px,0.92fr)] lg:items-stretch lg:gap-8 lg:px-8 lg:pb-0 lg:pt-0">
         <PageHero />
 
         <section className="grid items-start justify-end gap-4 pt-1 lg:pt-10" id="studio">
@@ -147,7 +153,7 @@ export function RoastGeneratorPage() {
           {requestError ? (
             <MessageCard
               message={requestError}
-              title="Something went off-script"
+              title="Something went wrong"
               tone="soft"
             />
           ) : null}

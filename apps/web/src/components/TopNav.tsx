@@ -66,13 +66,8 @@ export function TopNav() {
       <div className="flex items-center gap-3 sm:gap-5">
         <a
           className="inline-flex min-h-10 items-center rounded-[16px] border border-[rgba(0,0,0,0.06)] bg-[#080608] px-4 text-[0.94rem] font-normal !text-white shadow-[0_12px_24px_rgba(8,6,8,0.14)] sm:min-h-12 sm:rounded-[20px] sm:px-7 sm:text-[1.05rem] lg:px-8"
-          href={currentPage === "home" ? "#studio" : "/#studio"}
-          onClick={(event) =>
-            handleNavigate(
-              event,
-              currentPage === "home" ? "/#studio" : "/#studio",
-            )
-          }
+          href="/"
+          onClick={(event) => handleNavigate(event, "/")}
         >
           <span className="!text-white sm:hidden">Roast</span>
           <span className="hidden !text-white sm:inline">Get your roast</span>

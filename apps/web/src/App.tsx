@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { APP_NAVIGATE_EVENT } from "./lib/navigation";
 import { ExamplesPage } from "./pages/ExamplesPage";
 import { HowItWorksPage } from "./pages/HowItWorksPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { RoastGeneratorPage } from "./pages/RoastGeneratorPage";
 
 export default function App() {
@@ -33,6 +34,10 @@ export default function App() {
     };
   }, []);
 
+  if (pathname === "/") {
+    return <RoastGeneratorPage />;
+  }
+
   if (pathname === "/how-it-works") {
     return <HowItWorksPage />;
   }
@@ -41,5 +46,5 @@ export default function App() {
     return <ExamplesPage />;
   }
 
-  return <RoastGeneratorPage />;
+  return <NotFoundPage />;
 }

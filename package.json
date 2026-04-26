@@ -5,7 +5,17 @@
   "scripts": {
     "dev:web": "pnpm --filter @delulu-roast/web dev",
     "dev:api": "pnpm --filter @delulu-roast/api dev",
+    "lint": "eslint .",
+    "test": "pnpm --filter @delulu-roast/api test",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "typescript-eslint": "^8.59.0"
   }
 }

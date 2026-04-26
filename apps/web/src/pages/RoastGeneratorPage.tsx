@@ -93,13 +93,8 @@ export function RoastGeneratorPage() {
         reason:
           result.reason === "enhanced" ? "enhanced" : "fallback_local",
       });
-    } catch (caughtError) {
-      if (caughtError instanceof Error) {
-        console.error("Roast request failed:", caughtError.message);
-      } else {
-        console.error("Roast request failed:", caughtError);
-      }
-
+    } catch {
+      console.error("Roast request failed.");
       setRequestError(genericRequestError);
     } finally {
       setIsLoading(false);

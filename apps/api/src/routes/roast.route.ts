@@ -36,9 +36,25 @@ export async function registerRoastRoute(
 
       const roast = await buildRoast(parsed.data);
 
+      if (roast.kind === "ambiguous") {
+        return reply.send(
+          okResponse({
+            meta: {
+              source: roast.source,
+              reason: roast.reason,
+            },
+            options: roast.options,
+          }),
+        );
+      }
+
       return reply.send(
         okResponse({
-          roast,
+          roast: roast.roast,
+          meta: {
+            source: roast.source,
+            reason: roast.reason,
+          },
         }),
       );
     },

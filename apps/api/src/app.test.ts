@@ -4,6 +4,7 @@ import { createApp } from "./app.js";
 
 test("createApp wires routes using parsed env config", async () => {
   const app = await createApp({
+    APP_ENV: "development",
     OPENAI_API_KEY: "test-key",
     OPENAI_MODEL: "gpt-4o-mini",
     ALLOWED_ORIGIN: "http://localhost:5173",
@@ -26,6 +27,7 @@ test("createApp wires routes using parsed env config", async () => {
 test("createApp applies the rate limit only to roast generation", async () => {
   const app = await createApp(
     {
+      APP_ENV: "development",
       OPENAI_API_KEY: "test-key",
       OPENAI_MODEL: "gpt-4o-mini",
       ALLOWED_ORIGIN: "http://localhost:5173",
@@ -82,6 +84,7 @@ test("createApp applies the rate limit only to roast generation", async () => {
 
 test("createApp hides internal error details behind a generic 500 response", async () => {
   const app = await createApp({
+    APP_ENV: "development",
     OPENAI_API_KEY: "test-key",
     OPENAI_MODEL: "gpt-4o-mini",
     ALLOWED_ORIGIN: "http://localhost:5173",

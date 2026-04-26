@@ -159,7 +159,7 @@ export function RoastGeneratorPage() {
 
           {viewState.kind === "roast" ? (
             <ResultCard
-              animationKey={viewState.animationKey}
+              key={viewState.animationKey}
               mode={mode}
               roast={viewState.roast}
               severity={severity}

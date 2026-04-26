@@ -61,22 +61,22 @@ export function ResultCard({
   }
 
   return (
-    <section className="relative grid gap-6 overflow-hidden rounded-[32px] border border-[#f0f0f0] bg-[#ffffff] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:p-7">
-      <div className="pointer-events-none absolute right-6 top-5 text-[#efe8ff]">
-        <SparkleIcon className="h-14 w-14" />
+    <section className="relative grid gap-5 overflow-hidden rounded-[28px] border border-[#f0f0f0] bg-[#ffffff] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:gap-6 sm:rounded-[32px] sm:p-7">
+      <div className="pointer-events-none absolute right-4 top-4 text-[#efe8ff] sm:right-6 sm:top-5">
+        <SparkleIcon className="h-11 w-11 sm:h-14 sm:w-14" />
       </div>
 
-      <div className="grid gap-3">
-        <p className="m-0 flex items-center gap-2 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-[#9a8fa4]">
+      <div className="grid gap-2.5 sm:gap-3">
+        <p className="m-0 flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[#9a8fa4] sm:text-[0.78rem]">
           <span>DELULUROAST</span>
           <SparkleIcon className="h-3.5 w-3.5 text-[#b791ff]" />
         </p>
-        <div className="w-fit rounded-full border border-[#eeeeee] bg-[#fafafa] px-3 py-1.5 text-[0.88rem] font-medium text-[#8b8490]">
+        <div className="w-fit rounded-full border border-[#eeeeee] bg-[#fafafa] px-3 py-1.5 text-[0.82rem] font-medium text-[#8b8490] sm:text-[0.88rem]">
           {formatLabel(severity)} • {formatLabel(mode)}
         </div>
       </div>
 
-      <blockquote className="m-0 max-w-[16.5em] text-[1.45rem] font-medium leading-[1.45] tracking-[-0.015em] text-[#181318] sm:text-[1.72rem]">
+      <blockquote className="m-0 max-w-full text-[1.25rem] font-medium leading-[1.5] tracking-[-0.015em] text-[#181318] sm:max-w-[16.5em] sm:text-[1.72rem] sm:leading-[1.45]">
         <span className="text-[#c4b5fd]">“</span>
         {visibleRoast}
         {visibleRoast.length < roast.length ? (
@@ -85,13 +85,13 @@ export function ResultCard({
         <span className="text-[#c4b5fd]">”</span>
       </blockquote>
 
-      <p className="m-0 text-[0.98rem] text-[#8b8490]">
+      <p className="m-0 text-[0.9rem] text-[#8b8490] sm:text-[0.98rem]">
         — generated for: {subject}
       </p>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
         <button
-          className="flex min-h-11 items-center gap-2 rounded-[16px] border border-[#eeeeee] bg-[#fafafa] px-4 text-[0.96rem] font-medium text-[#2b222c] transition-colors hover:bg-[#f6f6f6]"
+          className="flex min-h-11 items-center justify-center gap-2 rounded-[16px] border border-[#eeeeee] bg-[#fafafa] px-4 text-[0.92rem] font-medium text-[#2b222c] transition-colors hover:bg-[#f6f6f6] sm:justify-start sm:text-[0.96rem]"
           onClick={() => void handleCopy()}
           type="button"
         >
@@ -99,7 +99,7 @@ export function ResultCard({
           {copyLabel}
         </button>
         <button
-          className="flex min-h-11 items-center gap-2 rounded-[16px] border border-[#eeeeee] bg-[#fafafa] px-4 text-[0.96rem] font-medium text-[#2b222c] transition-colors hover:bg-[#f6f6f6]"
+          className="flex min-h-11 items-center justify-center gap-2 rounded-[16px] border border-[#eeeeee] bg-[#fafafa] px-4 text-[0.92rem] font-medium text-[#2b222c] transition-colors hover:bg-[#f6f6f6] sm:justify-start sm:text-[0.96rem]"
           onClick={() => void handleShare()}
           type="button"
         >

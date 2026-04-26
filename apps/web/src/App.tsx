@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { APP_NAVIGATE_EVENT } from "./lib/navigation";
+import { ExamplesPage } from "./pages/ExamplesPage";
 import { HowItWorksPage } from "./pages/HowItWorksPage";
 import { RoastGeneratorPage } from "./pages/RoastGeneratorPage";
 
@@ -34,6 +35,10 @@ export default function App() {
 
   if (pathname === "/how-it-works") {
     return <HowItWorksPage />;
+  }
+
+  if (pathname === "/examples") {
+    return <ExamplesPage />;
   }
 
   return <RoastGeneratorPage />;

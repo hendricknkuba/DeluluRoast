@@ -5,5 +5,5 @@ dist
 .env.local
 .env.*.local
 
-AGENT.md
+AGENTS.md
 

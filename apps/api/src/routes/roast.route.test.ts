@@ -1,12 +1,29 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import Fastify from "fastify";
+import { toApiConfig, type ApiEnv } from "../env.js";
 import { registerRoastRoute } from "./roast.route.js";
+
+const testConfig = toApiConfig({
+  APP_ENV: "development",
+  OPENAI_API_KEY: "test-key",
+  OPENAI_MODEL: "gpt-4o-mini",
+  OPENAI_CONTEXT_MODEL: "gpt-4.1-mini",
+  OPENAI_MODERATION_MODEL: "omni-moderation-latest",
+  OPENAI_REWRITE_ENABLED: true,
+  OPENAI_REWRITE_MIN_SEVERITY: "savage",
+  OPENAI_REWRITE_REQUIRE_CONTEXT: true,
+  ALLOWED_ORIGINS: "http://localhost:5173",
+  ALLOWED_ORIGIN: undefined,
+  PORT: 3001,
+  RATE_LIMIT_MAX: 20,
+  RATE_LIMIT_WINDOW_MS: 60_000,
+} satisfies ApiEnv);
 
 test("POST /roasts/generate returns a stable success response shape", async () => {
   const app = Fastify();
 
-  await registerRoastRoute(app);
+  await registerRoastRoute(app, { config: testConfig });
 
   const response = await app.inject({
     method: "POST",
@@ -27,7 +44,7 @@ test("POST /roasts/generate returns a stable success response shape", async () =
   assert.match(body.data.roast, /IU/);
   assert.match(
     body.data.roast,
-    /No one warned you that|At this point|Somehow|It’s actually impressive how|Plot twist|Wildly enough|Against all odds|Shockingly|For some reason|Curiously/,
+    /No one warned you that|At this point|Be serious|Somehow you managed to|It’s actually impressive how|Nobody asked you to|You really woke up and decided to|Wildly enough|Against all odds|Shockingly/,
   );
 
   await app.close();
@@ -36,7 +53,7 @@ test("POST /roasts/generate returns a stable success response shape", async () =
 test("POST /roasts/generate returns a stable validation error response shape", async () => {
   const app = Fastify();
 
-  await registerRoastRoute(app);
+  await registerRoastRoute(app, { config: testConfig });
 
   const response = await app.inject({
     method: "POST",
@@ -65,7 +82,7 @@ test("POST /roasts/generate returns a stable validation error response shape", a
 test("POST /roasts/generate returns options for ambiguous targets", async () => {
   const app = Fastify();
 
-  await registerRoastRoute(app);
+  await registerRoastRoute(app, { config: testConfig });
 
   const response = await app.inject({
     method: "POST",

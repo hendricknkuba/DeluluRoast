@@ -1,11 +1,28 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { toApiConfig, type ApiEnv } from "../env.js";
 import {
   BLOCKED_TARGET_MESSAGE,
   buildLocalRoast,
   buildRoast,
   NON_KPOP_TARGET_MESSAGE,
 } from "./roast.service.js";
+
+const testConfig = toApiConfig({
+  APP_ENV: "development",
+  OPENAI_API_KEY: "test-key",
+  OPENAI_MODEL: "gpt-4o-mini",
+  OPENAI_CONTEXT_MODEL: "gpt-4.1-mini",
+  OPENAI_MODERATION_MODEL: "omni-moderation-latest",
+  OPENAI_REWRITE_ENABLED: true,
+  OPENAI_REWRITE_MIN_SEVERITY: "savage",
+  OPENAI_REWRITE_REQUIRE_CONTEXT: true,
+  ALLOWED_ORIGINS: "http://localhost:5173",
+  ALLOWED_ORIGIN: undefined,
+  PORT: 3001,
+  RATE_LIMIT_MAX: 20,
+  RATE_LIMIT_WINDOW_MS: 60_000,
+} satisfies ApiEnv);
 
 test("buildLocalRoast injects the subject into the matching template", () => {
   const roast = buildLocalRoast({
@@ -42,7 +59,10 @@ test("buildLocalRoast uses safeContext to make the draft more specific", () => {
   assert.match(roast, /Jungkook/);
   assert.match(roast, /golden maknae image/);
   assert.doesNotMatch(roast, /aura/);
-  assert.match(roast, /not helping your case|made this even more dramatic|look normal/);
+  assert.match(
+    roast,
+    /not helping your case|made this even more dramatic|look normal|less defensible|doing absolutely nothing to beat the allegations|turned the volume up|stopped looking accidental|looks wildly unserious/,
+  );
 });
 
 test("buildLocalRoast does not inject factual artist bio text into the roast", () => {
@@ -57,17 +77,11 @@ test("buildLocalRoast does not inject factual artist bio text into the roast", (
 });
 
 test("buildRoast falls back to the local roast when OpenAI is unavailable", async () => {
-  const originalApiKey = process.env.OPENAI_API_KEY;
-  const originalModel = process.env.OPENAI_MODEL;
-
-  delete process.env.OPENAI_API_KEY;
-  delete process.env.OPENAI_MODEL;
-
   const roast = await buildRoast({
     mode: "taste",
     severity: "mild",
     subject: "TXT",
-  });
+  }, undefined, testConfig);
 
   assert.equal(roast.kind, "roast");
 
@@ -80,14 +94,6 @@ test("buildRoast falls back to the local roast when OpenAI is unavailable", asyn
     assert.equal(roast.source, "local");
     assert.equal(roast.reason, "local_only_by_policy");
   }
-
-  if (originalApiKey) {
-    process.env.OPENAI_API_KEY = originalApiKey;
-  }
-
-  if (originalModel) {
-    process.env.OPENAI_MODEL = originalModel;
-  }
 });
 
 test("buildRoast returns the stage-only message for non-K-pop targets", async () => {
@@ -95,7 +101,7 @@ test("buildRoast returns the stage-only message for non-K-pop targets", async ()
     mode: "bias",
     severity: "mild",
     subject: "Cristiano Ronaldo",
-  });
+  }, undefined, testConfig);
 
   assert.equal(roast.kind, "roast");
 
@@ -130,6 +136,7 @@ test("buildRoast blocks flagged targets before classification", async () => {
         reason: "enhanced",
       }),
     },
+    testConfig,
   );
 
   assert.equal(roast.kind, "roast");
@@ -145,7 +152,7 @@ test("buildRoast returns disambiguation options for ambiguous names", async () =
     mode: "bias",
     severity: "mild",
     subject: "Mark",
-  });
+  }, undefined, testConfig);
 
   assert.equal(result.kind, "ambiguous");
 
@@ -204,6 +211,7 @@ test("buildRoast uses the resolved target when context resolution succeeds", asy
         };
       },
     },
+    testConfig,
   );
 
   assert.equal(result.kind, "roast");
@@ -217,12 +225,7 @@ test("buildRoast uses the resolved target when context resolution succeeds", asy
 });
 
 test("buildRoast skips OpenAI rewrite for mild requests under the cost gate", async () => {
-  const originalMinSeverity = process.env.OPENAI_REWRITE_MIN_SEVERITY;
-  const originalRequireContext = process.env.OPENAI_REWRITE_REQUIRE_CONTEXT;
   let rewriteCalled = false;
-
-  process.env.OPENAI_REWRITE_MIN_SEVERITY = "savage";
-  process.env.OPENAI_REWRITE_REQUIRE_CONTEXT = "true";
 
   const result = await buildRoast(
     {
@@ -252,6 +255,11 @@ test("buildRoast skips OpenAI rewrite for mild requests under the cost gate", as
         };
       },
     },
+    {
+      ...testConfig,
+      OPENAI_REWRITE_MIN_SEVERITY: "savage",
+      OPENAI_REWRITE_REQUIRE_CONTEXT: true,
+    },
   );
 
   assert.equal(result.kind, "roast");
@@ -261,17 +269,5 @@ test("buildRoast skips OpenAI rewrite for mild requests under the cost gate", as
     assert.equal(result.source, "local");
     assert.equal(result.reason, "local_only_by_policy");
     assert.match(result.roast, /Jungkook/);
-  }
-
-  if (originalMinSeverity) {
-    process.env.OPENAI_REWRITE_MIN_SEVERITY = originalMinSeverity;
-  } else {
-    delete process.env.OPENAI_REWRITE_MIN_SEVERITY;
-  }
-
-  if (originalRequireContext) {
-    process.env.OPENAI_REWRITE_REQUIRE_CONTEXT = originalRequireContext;
-  } else {
-    delete process.env.OPENAI_REWRITE_REQUIRE_CONTEXT;
   }
 });

@@ -1,0 +1,26 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="40" x2="1120" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF6EF"/>
+      <stop offset="0.55" stop-color="#FFFDFC"/>
+      <stop offset="1" stop-color="#F7F1FF"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="1200" height="630" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#160F17" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="#F9F4EE"/>
+  <circle cx="110" cy="118" r="170" fill="#FFE8D9"/>
+  <circle cx="1085" cy="92" r="148" fill="#EFE4FF"/>
+
+  <g filter="url(#shadow)">
+    <rect x="62" y="34" width="1076" height="562" rx="36" fill="url(#bg)"/>
+  </g>
+
+  <rect x="356" y="191" width="112" height="112" rx="32" fill="#080608"/>
+  <path d="M412 215L420 238L443 246L420 254L412 277L404 254L381 246L404 238L412 215Z" stroke="#B791FF" stroke-width="5" stroke-linejoin="round"/>
+
+  <text x="500" y="267" fill="#130D14" font-family="Avenir Next, Segoe UI, sans-serif" font-size="68" font-weight="800" letter-spacing="-0.04em">DELULUROAST</text>
+  <text x="500" y="320" fill="#6F6972" font-family="Avenir Next, Segoe UI, sans-serif" font-size="28" font-weight="500">A playful K-pop roast studio.</text>
+</svg>

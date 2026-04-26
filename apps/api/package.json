@@ -8,7 +8,7 @@
     "build": "pnpm --filter @delulu-roast/shared build && tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test ./src/*.test.ts ./src/**/*.test.ts"
+    "test": "pnpm --filter @delulu-roast/shared build && node --import tsx --test ./src/*.test.ts ./src/**/*.test.ts"
   },
   "dependencies": {
     "@delulu-roast/shared": "workspace:*",
